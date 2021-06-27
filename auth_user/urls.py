@@ -9,4 +9,5 @@ urlpatterns = [
     path('verification_request/email/',onAuth.get_email_verification_code),
     path('login/phone/',onAuth.login_phone),
     path('login/email/',onAuth.login_email),
+    path('login/email/',onAuth.change_passswd_pnone),
 ]
