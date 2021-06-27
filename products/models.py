@@ -15,6 +15,6 @@ class Product_Info(models.Model):  ## 产品信息表
     product_detail = models.CharField(max_length=500, null = False)
     create_time = models.DateTimeField(auto_now_add=True, null = False)
     update_time = models.DateTimeField(auto_now_add=True, null = False)
-    userid=models.ForeignKey(auth_user.models.User,on_delete=CASCADE)
+    userid=models.ForeignKey(auth_user.models.User, on_delete=CASCADE)
     price=models.FloatField(null = False)
     inventory=models.IntegerField(null=False)
