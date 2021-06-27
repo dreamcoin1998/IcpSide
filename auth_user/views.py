@@ -286,7 +286,7 @@ def login_phone(request):
             # 若手机号或密码不正确
             else:
                 result= {
-                            "code": 6002,
+                            "code": 4007,
                             "data": {
                             "userid": '',
                             "username": "",
@@ -295,7 +295,7 @@ def login_phone(request):
                             "verification": '',
                             "avatarUrl": ""
                             },
-                            "msg": "手机号或密码不正确"
+                            "msg": "登录手机号或密码不正确"
                         }
                 response=JsonResponse(data=result,safe=False)
         # 尝试登陆失败
@@ -355,7 +355,7 @@ def login_email(request):
             # 若手机号或密码不正确
             else:
                 result= {
-                            "code": 6002,
+                            "code": 4007,
                             "data": {
                             "userid": '',
                             "username": "",
