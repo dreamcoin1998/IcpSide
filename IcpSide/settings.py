@@ -35,13 +35,15 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "simpleui",
+    #"simpleui",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'auth_user',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -80,8 +82,12 @@ WSGI_APPLICATION = 'IcpSide.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'icpside',
+        'HOST': '134.175.218.240', # 数据库地址，本机 ip 地址 127.0.0.1 
+        'PORT': 3306, # 端口 
+        'USER': 'IcpSide',  # 数据库用户名
+        'PASSWORD': 'IcpSidetest', # 数据库密码
     }
 }
 
