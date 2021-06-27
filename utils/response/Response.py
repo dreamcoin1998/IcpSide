@@ -41,6 +41,18 @@ class FailedResponse(Response):
     msg = "失败"
 
 
+class ClientErrorResponse(Response):
+
+    code = 4000
+    msg = "客户端错误"
+
+
+class HttpMethodErrorResponse(Response):
+
+    code = 4002
+    msg = "HTTP请求方法错误"
+
+
 class NotLoginResponse(Response):
 
     code = 4003
@@ -63,6 +75,12 @@ class GetCodeTooOftenResponse(Response):
 
     code = 4006
     msg = "手机号/邮箱获取验证码太过频繁"
+
+
+class PhoneOrEmailErrorResponse(Response):
+
+    code = 4007
+    msg = "手机号/密码不正确"
 
 
 class BackendErrorResponse(Response):
