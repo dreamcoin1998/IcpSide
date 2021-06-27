@@ -1,5 +1,0 @@
-class response:
-    def 
-    result={
-
-    }
