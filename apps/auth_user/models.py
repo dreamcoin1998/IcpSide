@@ -11,7 +11,7 @@ class User(models.Model):   ## 用户表
     introduction = models.CharField(max_length=100,blank=True,null=True, verbose_name = '个人介绍')
     verification = models.BooleanField(auto_created=False, verbose_name = '是否已认证')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name = '创建时间')
-    avatar = models.OneToOneField(verbose_name = '头像')
+    # avatar = models.OneToOneField(verbose_name = '头像')
     # a = models.FileField()
 
 class Verification_Code(models.Model):  ## 验证码表，后期修改不用下划线
@@ -19,7 +19,7 @@ class Verification_Code(models.Model):  ## 验证码表，后期修改不用下�
     verification_type = models.CharField(max_length=100, null=False)
     phoneOrEmail = models.IntegerField()
     code = models.CharField(max_length=6, null=False)
-    update_time = models.DateTimeField(auto_now_add = True)
+    update_time = models.DateTimeField(auto_now_add = True, blank=True)
     
     # update_time = models.DateTimeField(auto_now_add=True)
     
