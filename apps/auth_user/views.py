@@ -9,6 +9,7 @@ from .models import User, Verification_Code
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.serializers import serialize
+from utils.response import Response
 
 '''
 注册
@@ -393,4 +394,118 @@ def login_email(request):
 找回密码-phone
 '''
 def change_passswd_pnone(request):
-    pass
+    # 使用了POST方法
+    if request.POST:
+        phone_post = request.GET['phone']
+        code_post = request.GET['code']
+        password_post = request.GET['password']
+        # 验证码正确
+        if(Verification_Code.objects.filter(phoneOrEmail = phone_post, code = code_post)):
+            try:
+                new_info = User.objects.get(phone = phone_post)
+                new_info.password = password_post
+                new_info.save()
+                x = Response.Response()
+                return x
+            except:
+                x = Response.ClientErrorResponse()
+                return x
+        # 验证码不正确
+        else:
+            x = Response.ClientErrorResponse()
+            return x
+    # 未使用POST方法
+    else:
+        x = Response.ClientErrorResponse()
+        return x
+    # return JsonResponse(data=result,safe=False)
+
+'''
+找回密码-email
+'''
+def change_passswd_email(request):
+    # 使用了POST方法
+    if request.POST:
+        email_post = request.GET['email']
+        code_post = request.GET['code']
+        password_post = request.GET['password']
+        # 验证码正确
+        if(Verification_Code.objects.filter(phoneOrEmail = email_post, code = code_post)):
+            try:
+                new_info = User.objects.get(email = email_post)
+                new_info.password = password_post
+                new_info.save()
+                x = Response.Response()
+                return x
+            except:
+                x = Response.ClientErrorResponse()
+                return x
+        # 验证码不正确
+        else:
+            x = Response.ClientErrorResponse()
+            return x
+    # 未使用POST方法
+    else:
+        x = Response.ClientErrorResponse()
+        return x
+    # return JsonResponse(data=result,safe=False)
+
+'''
+修改手机-phone
+'''
+def change_phone(request):
+    # 获取前端传来的消息
+    try:
+        userid_post = request.COOKIES.GET['userid']
+        phone_post = request.GET['phone']
+        code_post = request.GET['code']
+        # 验证码正确
+        if(Verification_Code.objects.filter(phoneOrEmail = phone_post, code = code_post)):
+            try:
+                new_info = User.objects.get(userid = userid_post)
+                new_info.phone = phone_post
+                new_info.save()
+                result = Response.Response()
+                return result
+            except:
+                result = Response.ClientErrorResponse()
+                return result
+        # 验证码不正确
+        else:
+            result = Response.ClientErrorResponse()
+            return result
+    # 错误
+    except:
+        result = Response.ClientErrorResponse()
+        return result
+    # return JsonResponse(data=result,safe=False)
+
+'''
+修改邮箱-email
+'''
+def change_email(request):
+    # 获取前端传来的消息
+    try:
+        userid_post = request.COOKIES.GET['userid']
+        email_post = request.GET['email']
+        code_post = request.GET['code']
+        # 验证码正确
+        if(Verification_Code.objects.filter(phoneOrEmail = email_post, code = code_post)):
+            try:
+                new_info = User.objects.get(userid = userid_post)
+                new_info.phone = email_post
+                new_info.save()
+                result = Response.Response()
+                return result
+            except:
+                result = Response.ClientErrorResponse()
+                return result
+        # 验证码不正确
+        else:
+            result = Response.ClientErrorResponse()
+            return result
+    # 错误
+    except:
+        result = Response.ClientErrorResponse()
+        return result
+    # return JsonResponse(data=result,safe=False)
