@@ -19,3 +19,13 @@ EMAIL_HOST_PASSWORD = 'xfYC4mkT2QLPuBQv'
 BROKER_URL = 'redis://www.gaoblog.cn:6379/6'
 #celery结果返回，可用于跟踪结果
 CELERY_RESULT_BACKEND = 'redis://www.gaoblog.cn:6379/0'
+
+class my_database():
+    """
+    我的数据库
+    """
+    host = '134.175.218.240'
+    port = 3306
+    name = 'icpside'
+    user = 'IcpSide'
+    password = 'IcpSidetest'

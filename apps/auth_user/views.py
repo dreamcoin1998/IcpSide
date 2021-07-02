@@ -20,6 +20,7 @@ def register(request):
     # 使用POST方法
     if request.POST:
         try:
+            # 提取前端数据
             data = request.body.decode('utf-8')
             data = json.loads(data)
             username_post = data.get('username')
@@ -56,23 +57,13 @@ def register(request):
                 "introduction": user_obj.introduction,
                 "avatar": user_obj.avatar.url
             }
-            # 返回json和cookie，cookie需要在7天后到期
+            # 返回json和cookie，cookie需要在90年后到期
             response = Response.Response(data=data)
             response.set_cookie('userid', user_obj.userid, expires=EXPIRE_TIME)
             return response
         # 后端错误
         except Exception as e:
             # TODO: 写日志
-            result = {
-                "code": 5000,
-                "data": {
-                    "userid": '',
-                    "username": '',
-                    "email": "",
-                    "phone": ''
-                },
-                "msg": "后端错误"
-            }
             return Response.BackendErrorResponse()
 
 
