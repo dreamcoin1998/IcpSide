@@ -26,4 +26,6 @@ urlpatterns = [
     path(r'/v1.0/my_products$', pviews.my_products),    # •	/v1.0/products/type?id=&count=&page=
     path(r'/v1.0/products/type$', pviews.products_type),    # •	/v1.0/product/recommond?count=&page=
     path(r'/v1.0/product/recommond$', pviews.recommond),    # •	/v1.0/product/recommond?count=&page=
+    path(r'/v1.0/products$', pviews.get_all_products),    # •	/v1.0/products?count=&page=
+    path(r'/v1.0/products$', pviews.search_products),    # •	/v1.0/products?product_name=&count=&page=
 ]
