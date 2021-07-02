@@ -7,7 +7,7 @@ import json
 
 from django.contrib.auth.hashers import make_password
 from IcpSide.settings import EXPIRE_TIME
-from auth_user.models import Yonghu, VerificationCode
+from auth_user.models import Yonghu, VerificationCode, Sensitives
 from utils.response import Response
 import datetime
 from .tasks import random_str, send_code_email, send_code_phone
@@ -348,3 +348,33 @@ def change_email(request):
         # 错误
     except:
         return Response.BackendErrorResponse()
+
+
+def update_info(request):
+    """
+    修改用户信息
+    """
+    # 使用了POST方法
+    if request.POST:
+        try:
+            userid = request.COOKIES.GET.get('userid')
+            # 用户不存在
+            if not  userid or not Yonghu.objects.filter(userid = userid):
+                return Response.NotLoginResponse()
+            # 提取前端数据
+            data = request.body.decode('utf-8')
+            data = json.loads(data)
+            username = data.get('username')
+            introduction = data.get('introduction')
+            avatar = data.get('avatar')
+            # 更新信息
+            yonghu_obj = Yonghu.objects.filter(userid = userid).first()
+            yonghu_obj.username = username
+            yonghu_obj.introduction = introduction
+            yonghu_obj.avatar = avatar
+            yonghu_obj.save()
+            return  Response.Response()
+        # 后端错误
+        except Exception as e:
+            result = Response.BackendErrorResponse()
+            return result

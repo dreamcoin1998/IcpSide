@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1.0/auth/', include('apps.auth_user.urls')),  ##v1.0：版本1；auth：用户认证模块
     path('v1.0/product/', include('apps.products.urls')),  ##v1.0：版本1；products：产品模块
+    path('v1.0/sensitives/', include('apps.auth_user.urls')),  ##v1.0：版本1；products：产品模块
 ]
