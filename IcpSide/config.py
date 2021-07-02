@@ -26,6 +26,6 @@ class my_database():
     """
     host = '134.175.218.240'
     port = 3306
-    name = 'icpside'
-    user = 'IcpSide'
+    name = 'icpside1'
+    user = 'icpside1'
     password = 'IcpSidetest'
