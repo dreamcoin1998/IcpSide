@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from .config import my_database
 import sys
 import os
 
@@ -35,7 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "simpleui",
+    # "simpleui",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +47,7 @@ INSTALLED_APPS = [
     'products',
     "access_log",
     "image",
-    "djcelery"
+    # "djcelery"
 ]
 
 MIDDLEWARE = [
@@ -87,11 +88,11 @@ WSGI_APPLICATION = 'IcpSide.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'icpside',
-        'HOST': '134.175.218.240', # 数据库地址，本机 ip 地址 127.0.0.1 
-        'PORT': 3306, # 端口 
-        'USER': 'IcpSide',  # 数据库用户名
-        'PASSWORD': 'IcpSidetest', # 数据库密码
+        'NAME': my_database.name,
+        'HOST': my_database.host, # 数据库地址，本机 ip 地址 127.0.0.1
+        'PORT': my_database.port, # 端口
+        'USER': my_database.user,  # 数据库用户名
+        'PASSWORD': my_database.password, # 数据库密码
     }
 }
 
