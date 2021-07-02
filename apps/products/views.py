@@ -1,5 +1,4 @@
 import json
-
 from django.http.response import JsonResponse
 from utils.response import Response
 from .models import ProductType, ProductInfo
@@ -14,7 +13,7 @@ def creat_result(product_obj):
         "product_detail": product_obj.product_detail,
         "product_type": {
             "product_type_id": product_obj.product_type.product_type_id,
-            "type_name": product_obj.product_type.
+            "type_name": product_obj.product_type.type_name
         },
         "create_time": product_obj.create_time,
         "update_time": product_obj.update_time,
@@ -60,7 +59,7 @@ def create(request):
                                            userid = user_obj)
                 new_product.save()
                 result = creat_result(new_product)
-                return JsonResponse(data = result, safe = False)
+                return Response.Response(data=result)
             else:
                 return Response.ProductTypeErrorResponse()
         # 后端错误
