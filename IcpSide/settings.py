@@ -43,10 +43,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'auth_user',
-    'products',
-    "access_log",
-    "image",
+    # my apps
+    'apps.auth_user',
+    'apps.products',
+    "apps.access_log",
+    "apps.image",
     # "djcelery"
 ]
 
