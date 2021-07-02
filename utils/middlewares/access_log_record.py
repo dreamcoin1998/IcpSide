@@ -10,7 +10,7 @@ try:
 except ImportError:
     MiddlewareMixin = object
 from access_log.models import AccessLog
-from auth_user.models import User
+from auth_user.models import Yonghu
 
 
 class AccessLogRecord(MiddlewareMixin):
@@ -28,7 +28,7 @@ class AccessLogRecord(MiddlewareMixin):
         user_obj = None
         if userid:
             # 获取user对象
-            user = User.objects.filter(pk=int(userid))
+            user = Yonghu.objects.filter(pk=int(userid))
             # 如果能找到user，则保存user对象
             if user.count() == 1:
                 user_obj = user[0]

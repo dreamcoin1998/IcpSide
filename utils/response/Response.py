@@ -47,6 +47,12 @@ class ClientErrorResponse(Response):
     msg = "客户端错误"
 
 
+class PasswordLengthResponse(Response):
+
+    code = 4001
+    msg = "密码长度不及8位"
+
+
 class HttpMethodErrorResponse(Response):
 
     code = 4002
@@ -81,6 +87,12 @@ class PhoneOrEmailErrorResponse(Response):
 
     code = 4007
     msg = "手机号/密码不正确"
+
+
+class ProductTypeErrorResponse(Response):
+
+    code = 4008
+    msg = "产品类型不存在"
 
 
 class BackendErrorResponse(Response):

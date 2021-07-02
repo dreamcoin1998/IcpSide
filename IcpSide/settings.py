@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'auth_user',
     'products',
-    "access_log"
+    "access_log",
+    "image",
+    "djcelery"
 ]
 
 MIDDLEWARE = [
@@ -140,6 +142,29 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # simpleui 配置
 SIMPLEUI_HOME_ACTION = True
+
+
+# COOKIE过期时间
+EXPIRE_TIME = 90 * 365 * 24 * 60 * 60
+
+
+# 邮箱配置
+# 设置邮件域名
+EMAIL_HOST = "smtp.exmail.qq.com"
+# 设置端口号
+EMAIL_PORT = 465
+# 发件人邮箱
+EMAIL_HOST_USER = 'gaojunbin@gaoblog.cn'
+# 发件人姓名
+EMAIL_WEBITE_NAME = '超级管理员'
+# 发件人授权码
+EMAIL_HOST_PASSWORD = 'xfYC4mkT2QLPuBQv'
+# 设置是否启用安全链接
+EMAIL_USE_SSL = True
+#是否使用TLS安全传输协议
+EMAIL_USE_TLS = False
+
+ERROR_FROM = 'gaojunbin@gaoblog.cn'
 
 
 # 第三方接口

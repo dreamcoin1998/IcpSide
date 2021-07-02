@@ -1,511 +1,359 @@
-'''
+"""
 Author: dawnerstart
 Function: 验证相关信息
 Time: 2021-06-26
-'''
-from django.http import HttpResponse, JsonResponse, response
-import json, simplejson, traceback, time, datetime, random
-from .models import User, Verification_Code
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.serializers import serialize
-from utils.response import Response
+"""
+import json
 
-'''
-注册
-'''
+from django.contrib.auth.hashers import make_password
+from IcpSide.settings import EXPIRE_TIME
+from auth_user.models import Yonghu, VerificationCode
+from utils.response import Response
+import datetime
+from .tasks import random_str, send_code_email, send_code_phone
+
+
 def register(request):
+    """
+    注册
+    """
     # 使用POST方法
     if request.POST:
         try:
+            data = request.body.decode('utf-8')
+            data = json.loads(data)
+            username_post = data.get('username')
+            password_post = data.get('password')
+            phone_or_email = data.get('phoneOrEmail')
+            code_post = request.body.get("code")
+            # 密码长度小于8
+            if len(password_post) < 8:
+                return Response.PasswordLengthResponse()
+            password = make_password(password_post)
             # 用手机号验证
-            if(request.GET['type'] == 'phone'):
-                username_post = request.GET['username']
-                password_post = request.GET['password']
-                phoneOrEmail_post = request.GET['phoneOrEmail']
-                code_post = request.GET['code']
+            if data.get("type") == 'phone':
                 # 手机号已存在或者验证码不正确
-                if(User.objects.filter(phone = phoneOrEmail_post) or not Verification_Code.objects.filter(phoneOrEmail = phoneOrEmail_post, code = code_post)):
-                    result={
-                                "code": 6001,
-                                "data": {
-                                "userid": 1,
-                                "username": "",
-                                "email": "",
-                                "phone": ""
-                                },
-                                "msg": "手机号已存在或者验证码不正确"
-                            }
-                    response=JsonResponse(data=result,safe=False)
-                # 注册成功
-                else:
-                    new_user = User(username=username_post, password=password_post, phone=phoneOrEmail_post)
-                    new_user.save()
-                    userid=User.objects.filter(phone=phoneOrEmail_post).first().userid
-                    result={
-                                "code": 0,
-                                "data": {
-                                "userid": userid,
-                                "username": username_post,
-                                "email": "",
-                                "phone": phoneOrEmail_post
-                                },
-                                "msg": "注册成功"
-                            }
-                    # 返回json和cookie，cookie需要在7天后到期
-                    response=JsonResponse(data=result,safe=False)
-                    response.set_cookie('userid', userid, expires = 60 * 60 * 24 * 7)
-                    # 删除验证码
-                    delete_verification_code = Verification_Code.objects.filter(phoneOrEmail = phoneOrEmail_post, code = code_post)
-                    delete_verification_code.delete()
+                if Yonghu.objects.filter(phone=phone_or_email) \
+                        or not VerificationCode.objects.filter(phoneOrEmail=phone_or_email, code=code_post):
+                    return Response.PhoneOrEmailOccupied()
+                new_user = Yonghu(username=username_post, password=password, phone=phone_or_email)
             # 用邮箱验证
-            elif(request.GET['type'] == 'email'):
-                username_post = request.GET['username']
-                password_post = request.GET['password']
-                phoneOrEmail_post = request.GET['phoneOrEmail']
-                code_post = request.GET['code']
-                # 手机号已存在或者验证码不正确
-                if(User.objects.filter(email = phoneOrEmail_post) or not Verification_Code.objects.filter(phoneOrEmail = phoneOrEmail_post, code = code_post)):
-                    result={
-                                "code": 6001,
-                                "data": {
-                                "userid": 1,
-                                "username": "",
-                                "email": "",
-                                "phone": ""
-                                },
-                                "msg": "邮箱已存在或者验证码不正确"
-                            }
-                    response=JsonResponse(data=result,safe=False)
-                # 注册成功
-                else:
-                    new_user = User(username=username_post, password=password_post, email=phoneOrEmail_post)
-                    new_user.save()
-                    userid=User.objects.filter(email=phoneOrEmail_post).first().userid
-                    result={
-                                "code": 0,
-                                "data": {
-                                "userid": userid,
-                                "username": username_post,
-                                "email": phoneOrEmail_post,
-                                "phone": ""
-                                },
-                                "msg": "注册成功"
-                            }
-                    # 返回json和cookie，cookie需要在7天后到期
-                    response=JsonResponse(data=result,safe=False)
-                    response.set_cookie('userid', userid, expires = 60 * 60 * 24 * 7)
-
-            # 其他
+            elif data.get("type") == 'email':
+                # 邮箱已存在或者验证码不正确
+                if (Yonghu.objects.filter(email=phone_or_email) or not VerificationCode.objects.filter(
+                        phoneOrEmail=phone_or_email, code=code_post)):
+                    return Response.PhoneOrEmailOccupied()
+                new_user = Yonghu(username=username_post, password=password, email=phone_or_email)
             else:
-                result={
-                        "code": 5000,
-                        "data": {
-                        "userid": '',
-                        "username": '',
-                        "email": "",
-                        "phone": ''
-                        },
-                        "msg": "后端错误"
-                    }
-                response=JsonResponse(data=result,safe=False)
+                return Response.ClientErrorResponse()
+            new_user.save()
+            user_obj = Yonghu.objects.filter(phone=phone_or_email).first()
+            data = {
+                "data": user_obj.userid,
+                "username": user_obj.username,
+                "email": user_obj.email,
+                "phone": user_obj.phone,
+                "introduction": user_obj.introduction,
+                "avatar": user_obj.avatar.url
+            }
+            # 返回json和cookie，cookie需要在7天后到期
+            response = Response.Response(data=data)
+            response.set_cookie('userid', user_obj.userid, expires=EXPIRE_TIME)
+            return response
         # 后端错误
-        except:
-            result={
-                        "code": 5000,
-                        "data": {
-                        "userid": '',
-                        "username": '',
-                        "email": "",
-                        "phone": ''
-                        },
-                        "msg": "后端错误"
-                    }
-            response=JsonResponse(data=result,safe=False)
-    # 未使用POST方法
-    else:
-        result= {
-                "code": 6000,
+        except Exception as e:
+            # TODO: 写日志
+            result = {
+                "code": 5000,
                 "data": {
-                            
-                        },
-                "msg": "歇会啊"
-                }
-        response=JsonResponse(data=result,safe=False)
-    return response
+                    "userid": '',
+                    "username": '',
+                    "email": "",
+                    "phone": ''
+                },
+                "msg": "后端错误"
+            }
+            return Response.BackendErrorResponse()
 
-'''
-请求手机验证码
-'''
+
+def code_validated(verify_obj):
+    """
+    验证码时间验证 是否在1分钟内
+    """
+    update_time_timestamp = datetime.datetime.timestamp(verify_obj.update_time)
+    now = datetime.datetime.now()  # 当前时间
+    now_timestamp = datetime.datetime.timestamp(now)
+    if now_timestamp - update_time_timestamp < 60:
+        return True
+    return False
+
+
 def get_phone_verification_code(request):
+    """
+    请求手机验证码
+    """
     # 使用了POST方法
+    data = request.body.decode('utf-8')
+    data = json.loads(data)
     if request.POST:
-        phone_post = request.GET['phone']
+        phone_post = data.get("phone")
         # 手机号已注册
-        if(User.objects.filter(phone = phone_post)):
-            result= {
-                        "code": 4005,
-                        "data": {
-                                    
-                                },
-                        "msg": "手机号已注册"
-                    }
+        if Yonghu.objects.filter(phone=phone_post):
+            return Response.PhoneOrEmailOccupied()
         # 手机号获取验证码太过频繁
-        elif(Verification_Code.objects.get(phone = phone_post)):
-            result= {
-                        "code": 4006,
-                        "data": {
-                                    
-                                },
-                        "msg": "手机号获取验证码太过频繁"
-                    }
-        # 可获取验证码
+        elif VerificationCode.objects.filter(phoneOrEmail=phone_post):
+            # 判断时间是否在5分钟内
+            verify_obj = VerificationCode.objects.filter(phoneOrEmail=phone_post).first()
+            if code_validated(verify_obj):
+                return Response.GetCodeTooOftenResponse()
         else:
-            try:
-                x = str(random.randint(000000,999999))
-                new_verification_code = Verification_Code(verification_type = 'phone', phoneOrEmail = phone_post, code = x)
-                new_verification_code.save()
-                # 调用手机验证码接口代码
-                result= {
-                        "code": 1,
-                        "data": {
-                                    
-                                },
-                        "msg": "手机验证码发送成功"
-                    }
-            except:
-                # 手机号/邮箱验证码发送有问题
-                result= {
-                        "code": 4007,
-                        "data": {
-                                    
-                                },
-                        "msg": "手机号/邮箱验证码发送有问题"
-                    }
-    # 未使用POST方法
-    else:
-        result= {
-                "code": 6000,
-                "data": {
-                            
-                        },
-                "msg": "歇会啊"
-                }
-    return JsonResponse(data=result,safe=False)
-                
-'''
-请求邮箱验证码
-'''
+            verify_obj = VerificationCode()
+        random_code = random_str(random_length=6)
+        verify_obj.code = random_code
+        verify_obj.verification_type = "phone"
+        verify_obj.phoneOrEmail = phone_post
+        verify_obj.save()
+        # 手机验证码发送
+        send_code_phone.delay(phone_post, random_code)
+        return Response.Response()
+
+
 def get_email_verification_code(request):
+    """
+    请求邮箱验证码
+    """
     # 使用了POST方法
+    data = request.body.decode('utf-8')
+    data = json.loads(data)
     if request.POST:
-        email_post = request.GET['email']
+        email_post = data.get("email")
         # 手机号已注册
-        if(User.objects.filter(email = email_post)):
-            result= {
-                        "code": 4005,
-                        "data": {
-                                    
-                                },
-                        "msg": "邮箱已注册"
-                    }
+        if Yonghu.objects.filter(email=email_post):
+            return Response.PhoneOrEmailOccupied()
         # 手机号获取验证码太过频繁
-        elif(Verification_Code.objects.get(email = email_post)):
-            result= {
-                        "code": 4006,
-                        "data": {
-                                    
-                                },
-                        "msg": "邮箱获取验证码太过频繁"
-                    }
+        elif VerificationCode.objects.filter(email=email_post):
+            # 判断时间是否在5分钟内
+            verify_obj = VerificationCode.objects.filter(phoneOrEmail=email_post).first()
+            if code_validated(verify_obj):
+                return Response.GetCodeTooOftenResponse()
         # 可获取验证码
         else:
-            try:
-                x = str(random.randint(000000,999999))
-                new_verification_code = Verification_Code(verification_type = 'phone', phoneOrEmail = email_post, code = x)
-                new_verification_code.save()
-                # 调用手机验证码接口代码
-                result= {
-                        "code": 1,
-                        "data": {
-                                    
-                                },
-                        "msg": "邮箱验证码发送成功"
-                    }
-            except:
-                # 手机号/邮箱验证码发送有问题
-                result= {
-                        "code": 4007,
-                        "data": {
-                                    
-                                },
-                        "msg": "手机号/邮箱验证码发送有问题"
-                    }
-    # 未使用POST方法
-    else:
-        result= {
-                "code": 6000,
-                "data": {
-                            
-                        },
-                "msg": "歇会啊"
-                }
-    return JsonResponse(data=result,safe=False)
+            verify_obj = VerificationCode()
+        random_code = random_str(random_length=6)
+        verify_obj.code = random_code
+        verify_obj.verification_type = "email"
+        verify_obj.phoneOrEmail = email_post
+        verify_obj.save()
+        # 发送邮箱验证码
+        send_code_email.delay(email_post, code=random_code)
+        return Response.Response()
 
-'''
-手机号登录
-'''
+
 def login_phone(request):
+    """
+    手机号登录
+    """
     # POST方法
     if request.POST:
         # 尝试登陆
         try:
-            phone_post=request.GET['phone']
-            passwword_post=request.GET['password']
+            data = request.body.decode('utf-8')
+            data = json.loads(data)
+            phone_post = data.get("phone")
+            password_post = data.get("password")
+            password = make_password(password_post)
             # 若手机号和密码正确
-            if(User.objects.filter(phone=phone_post, password=passwword_post)):
-                login_userid=User.objects.filter(phone=phone_post, password=passwword_post).first().userid
-                login_username=User.objects.filter(phone=phone_post, password=passwword_post).first().username
-                login_email=User.objects.filter(phone=phone_post, password=passwword_post).first().email
-                login_phone=User.objects.filter(phone=phone_post, password=passwword_post).first().phone
-                login_verification=User.objects.filter(phone=phone_post, password=passwword_post).first().verification
-                login_avatar=User.objects.filter(phone=phone_post, password=passwword_post).first().avatar
-                result= {
-                            "code": 0,
-                            "data": {
-                            "userid": login_userid,
-                            "username": login_username,
-                            "email": login_email,
-                            "phone": login_phone,
-                            "verification": login_verification,
-                            "avatarUrl": login_avatar
-                            },
-                            "msg": "登陆成功"
-                        }
-                response=JsonResponse(data=result,safe=False)
-                response.set_cookie('userid', login_userid, expires = 60 * 60 * 24 * 7)
+            if Yonghu.objects.filter(phone=phone_post, password=password):
+                user_obj = Yonghu.objects.filter(phone=phone_post, password=password).first()
+                result = {
+                    "data": user_obj.userid,
+                    "username": user_obj.username,
+                    "email": user_obj.email,
+                    "phone": user_obj.phone,
+                    "introduction": user_obj.introduction,
+                    "avatar": user_obj.avatar.url
+                }
+                response = Response.Response(data=result)
+                response.set_cookie('userid', user_obj.userid, expires=EXPIRE_TIME)
+                return response
             # 若手机号或密码不正确
             else:
-                result= {
-                            "code": 4007,
-                            "data": {
-                            "userid": '',
-                            "username": "",
-                            "email": "",
-                            "phone": "",
-                            "verification": '',
-                            "avatarUrl": ""
-                            },
-                            "msg": "登录手机号或密码不正确"
-                        }
-                response=JsonResponse(data=result,safe=False)
+                return Response.PhoneOrEmailErrorResponse()
         # 尝试登陆失败
         except:
-            result= {
-                "code": 6000,
-                "data": {
-                            
-                        },
-                "msg": "歇会啊"
-                }
-            response=JsonResponse(data=result,safe=False)
-    # 未用POST
-    else:
-        result= {
-                "code": 6000,
-                "data": {
-                            
-                        },
-                "msg": "歇会啊"
-                }
-        response=JsonResponse(data=result,safe=False)
-    return response
+            return Response.BackendErrorResponse()
 
-'''
-邮箱登录
-'''
+
 def login_email(request):
+    """
+    邮箱登录
+    """
     # POST方法
     if request.POST:
         # 尝试登陆
         try:
-            email_post=request.GET['email']
-            passwword_post=request.GET['password']
+            data = request.body.decode('utf-8')
+            data = json.loads(data)
+            email_post = data.get("email")
+            password_post = data.get("password")
+            password = make_password(password_post)
             # 若手机号和密码正确
-            if(User.objects.filter(email=email_post, password=passwword_post)):
-                login_userid=User.objects.filter(email=email_post, password=passwword_post).first().userid
-                login_username=User.objects.filter(email=email_post, password=passwword_post).first().username
-                login_email=User.objects.filter(email=email_post, password=passwword_post).first().email
-                login_phone=User.objects.filter(email=email_post, password=passwword_post).first().phone
-                login_verification=User.objects.filter(email=email_post, password=passwword_post).first().verification
-                login_avatar=User.objects.filter(email=email_post, password=passwword_post).first().avatar
-                result= {
-                            "code": 0,
-                            "data": {
-                            "userid": login_userid,
-                            "username": login_username,
-                            "email": login_email,
-                            "phone": login_phone,
-                            "verification": login_verification,
-                            "avatarUrl": login_avatar
-                            },
-                            "msg": "登陆成功"
-                        }
-                response=JsonResponse(data=result,safe=False)
-                response.set_cookie('userid', login_userid, expires = 60 * 60 * 24 * 7)
+            if Yonghu.objects.filter(email=email_post, password=password):
+                user_obj = Yonghu.objects.filter(email=email_post, password=password).first()
+                result = {
+                    "data": user_obj.userid,
+                    "username": user_obj.username,
+                    "email": user_obj.email,
+                    "phone": user_obj.phone,
+                    "introduction": user_obj.introduction,
+                    "avatar": user_obj.avatar.url
+                }
+                response = Response.Response(data=result)
+                response.set_cookie('userid', user_obj.userid, expires=EXPIRE_TIME)
+                return response
             # 若手机号或密码不正确
             else:
-                result= {
-                            "code": 4007,
-                            "data": {
-                            "userid": '',
-                            "username": "",
-                            "email": "",
-                            "phone": "",
-                            "verification": '',
-                            "avatarUrl": ""
-                            },
-                            "msg": "邮箱或密码不正确"
-                        }
-                response=JsonResponse(data=result,safe=False)
+                return Response.PhoneOrEmailErrorResponse()
         # 尝试登陆失败
         except:
-            result= {
-                "code": 6000,
-                "data": {
-                            
-                        },
-                "msg": "歇会啊"
-                }
-            response=JsonResponse(data=result,safe=False)
-    # 未用POST
-    else:
-        result= {
-                "code": 6000,
-                "data": {
-                            
-                        },
-                "msg": "歇会啊"
-                }
-        response=JsonResponse(data=result,safe=False)
-    return response
+            return Response.BackendErrorResponse()
 
-'''
-找回密码-phone
-'''
+
 def change_passswd_pnone(request):
+    """
+    找回密码-phone
+    """
     # 使用了POST方法
     if request.POST:
-        phone_post = request.GET['phone']
-        code_post = request.GET['code']
-        password_post = request.GET['password']
+        data = request.body.decode('utf-8')
+        data = json.loads(data)
+        phone_post = data.get("phone")
+        password_post = data.get("password")
+        code_post = data.get("code")
         # 验证码正确
-        if(Verification_Code.objects.filter(phoneOrEmail = phone_post, code = code_post)):
+        if VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post):
             try:
-                new_info = User.objects.get(phone = phone_post)
-                new_info.password = password_post
-                new_info.save()
-                x = Response.Response()
-                return x
+                user_obj = Yonghu.objects.filter(phone=phone_post).first()
+                user_obj.password = make_password(password_post)
+                user_obj.save()
+                result = {
+                    "data": user_obj.userid,
+                    "username": user_obj.username,
+                    "email": user_obj.email,
+                    "phone": user_obj.phone,
+                    "introduction": user_obj.introduction,
+                    "avatar": user_obj.avatar.url
+                }
+                response = Response.Response(data=result)
+                response.set_cookie('userid', user_obj.userid, expires=EXPIRE_TIME)
+                return response
             except:
-                x = Response.ClientErrorResponse()
-                return x
+                return Response.BackendErrorResponse()
         # 验证码不正确
         else:
-            x = Response.ClientErrorResponse()
-            return x
-    # 未使用POST方法
-    else:
-        x = Response.ClientErrorResponse()
-        return x
-    # return JsonResponse(data=result,safe=False)
+            return Response.ClientErrorResponse()
 
-'''
-找回密码-email
-'''
+
 def change_passswd_email(request):
+    """
+    找回密码-email
+    """
     # 使用了POST方法
     if request.POST:
-        email_post = request.GET['email']
-        code_post = request.GET['code']
-        password_post = request.GET['password']
+        data = request.body.decode('utf-8')
+        data = json.loads(data)
+        email_post = data.get("email")
+        password_post = data.get("password")
+        code_post = data.get("code")
         # 验证码正确
-        if(Verification_Code.objects.filter(phoneOrEmail = email_post, code = code_post)):
+        if VerificationCode.objects.filter(phoneOrEmail=email_post, code=code_post):
             try:
-                new_info = User.objects.get(email = email_post)
-                new_info.password = password_post
-                new_info.save()
-                x = Response.Response()
-                return x
+                user_obj = Yonghu.objects.filter(email=email_post).first()
+                user_obj.password = make_password(password_post)
+                user_obj.save()
+                result = {
+                    "data": user_obj.userid,
+                    "username": user_obj.username,
+                    "email": user_obj.email,
+                    "phone": user_obj.phone,
+                    "introduction": user_obj.introduction,
+                    "avatar": user_obj.avatar.url
+                }
+                response = Response.Response(data=result)
+                response.set_cookie('userid', user_obj.userid, expires=EXPIRE_TIME)
+                return response
             except:
-                x = Response.ClientErrorResponse()
-                return x
+                return Response.BackendErrorResponse()
         # 验证码不正确
         else:
-            x = Response.ClientErrorResponse()
-            return x
-    # 未使用POST方法
-    else:
-        x = Response.ClientErrorResponse()
-        return x
-    # return JsonResponse(data=result,safe=False)
+            return Response.ClientErrorResponse()
 
-'''
-修改手机-phone
-'''
+
 def change_phone(request):
+    """
+    修改手机-phone
+    """
     # 获取前端传来的消息
     try:
-        userid_post = request.COOKIES.GET['userid']
-        phone_post = request.GET['phone']
-        code_post = request.GET['code']
+        userid_post = request.COOKIES.GET.get("userid")
+        phone_post = request.GET.get("phone")
+        code_post = request.GET.get("code")
         # 验证码正确
-        if(Verification_Code.objects.filter(phoneOrEmail = phone_post, code = code_post)):
+        if VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post):
             try:
-                new_info = User.objects.get(userid = userid_post)
-                new_info.phone = phone_post
-                new_info.save()
-                result = Response.Response()
-                return result
+                user_obj = Yonghu.objects.filter(userid=userid_post).first()
+                user_obj.phone = phone_post
+                user_obj.save()
+                result = {
+                    "data": user_obj.userid,
+                    "username": user_obj.username,
+                    "email": user_obj.email,
+                    "phone": user_obj.phone,
+                    "introduction": user_obj.introduction,
+                    "avatar": user_obj.avatar.url
+                }
+                return Response.Response(data=result)
             except:
-                result = Response.ClientErrorResponse()
-                return result
+                return Response.BackendErrorResponse()
         # 验证码不正确
         else:
             result = Response.ClientErrorResponse()
             return result
     # 错误
     except:
-        result = Response.ClientErrorResponse()
-        return result
-    # return JsonResponse(data=result,safe=False)
+        return Response.BackendErrorResponse()
 
-'''
-修改邮箱-email
-'''
+
 def change_email(request):
+    """
+    修改邮箱-email
+    """
     # 获取前端传来的消息
     try:
         userid_post = request.COOKIES.GET['userid']
         email_post = request.GET['email']
         code_post = request.GET['code']
         # 验证码正确
-        if(Verification_Code.objects.filter(phoneOrEmail = email_post, code = code_post)):
+        if VerificationCode.objects.filter(phoneOrEmail=email_post, code=code_post):
             try:
-                new_info = User.objects.get(userid = userid_post)
-                new_info.phone = email_post
-                new_info.save()
-                result = Response.Response()
-                return result
+                user_obj = Yonghu.objects.filter(userid=userid_post).first()
+                user_obj.email = email_post
+                user_obj.save()
+                result = {
+                    "data": user_obj.userid,
+                    "username": user_obj.username,
+                    "email": user_obj.email,
+                    "phone": user_obj.phone,
+                    "introduction": user_obj.introduction,
+                    "avatar": user_obj.avatar.url
+                }
+                return Response.Response(data=result)
             except:
-                result = Response.ClientErrorResponse()
-                return result
+                return Response.BackendErrorResponse()
         # 验证码不正确
         else:
             result = Response.ClientErrorResponse()
             return result
-    # 错误
+        # 错误
     except:
-        result = Response.ClientErrorResponse()
-        return result
-    # return JsonResponse(data=result,safe=False)
+        return Response.BackendErrorResponse()
