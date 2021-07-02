@@ -11,9 +11,9 @@ from django.contrib.contenttypes.models import ContentType
 
 
 class ImagePath(models.Model):
-    '''
+    """
     图片链接
-    '''
+    """
     url = models.URLField(verbose_name='图片地址')
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
     object_id = models.PositiveIntegerField()

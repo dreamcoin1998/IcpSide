@@ -21,7 +21,7 @@ class ProductInfo(models.Model):
     """
     产品信息表
     """
-    product_name = models.CharField(max_length=6, null=False, verbose_name="产品名称")
+    product_name = models.CharField(max_length=20, null=False, verbose_name="产品名称")
     product_type = models.ForeignKey(ProductType, null=True, on_delete=models.DO_NOTHING, verbose_name="产品类型")
     product_detail = models.CharField(max_length=500, null=False, verbose_name="产品详情")
     create_time = models.DateTimeField(auto_now_add=True, null=False, verbose_name="创建时间")

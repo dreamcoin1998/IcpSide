@@ -235,15 +235,17 @@ def get_all_products(request):
         try:
             # 从数据库查询产品类型信息
             the_products = ProductInfo.objects.all()
+            total = the_products.count()
             count = int(request.GET.get('count', default='10'))
             page = int(request.GET.get('page', default='1'))
             # 对筛选出来的产品the_products进行分页，每页为count个
             paginator = Paginator(the_products, count)
             # 获取总的页数
             page_objs = paginator.get_page(page)
+            total_page = paginator.page_range[-1]
             # 返回结果
             data = [creat_result(page_obj) for page_obj in page_objs]
-            return Response.Response(data=data)
+            return Response.Response(data=data, total=total, total_page=total_page, page=page)
         # 后端错误
         except:
             return Response.BackendErrorResponse()
