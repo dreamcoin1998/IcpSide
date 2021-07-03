@@ -18,7 +18,7 @@ def register(request):
     注册
     """
     # 使用POST方法
-    if request.POST:
+    if request.method == 'POST':
         try:
             # 提取前端数据
             data = request.body.decode('utf-8')
@@ -86,7 +86,7 @@ def get_phone_verification_code(request):
     # 使用了POST方法
     data = request.body.decode('utf-8')
     data = json.loads(data)
-    if request.POST:
+    if request.method == 'POST':
         phone_post = data.get("phone")
         # 手机号已注册
         if Yonghu.objects.filter(phone=phone_post):
@@ -116,7 +116,7 @@ def get_email_verification_code(request):
     # 使用了POST方法
     data = request.body.decode('utf-8')
     data = json.loads(data)
-    if request.POST:
+    if request.method == 'POST':
         email_post = data.get("email")
         # 手机号已注册
         if Yonghu.objects.filter(email=email_post):
@@ -145,7 +145,7 @@ def login_phone(request):
     手机号登录
     """
     # POST方法
-    if request.POST:
+    if request.method == 'POST':
         # 尝试登陆
         try:
             data = request.body.decode('utf-8')
@@ -180,7 +180,7 @@ def login_email(request):
     邮箱登录
     """
     # POST方法
-    if request.POST:
+    if request.method == 'POST':
         # 尝试登陆
         try:
             data = request.body.decode('utf-8')
@@ -215,7 +215,7 @@ def change_passswd_pnone(request):
     找回密码-phone
     """
     # 使用了POST方法
-    if request.POST:
+    if request.method == 'POST':
         data = request.body.decode('utf-8')
         data = json.loads(data)
         phone_post = data.get("phone")
@@ -250,7 +250,7 @@ def change_passswd_email(request):
     找回密码-email
     """
     # 使用了POST方法
-    if request.POST:
+    if request.method == 'POST':
         data = request.body.decode('utf-8')
         data = json.loads(data)
         email_post = data.get("email")
@@ -355,7 +355,7 @@ def update_info(request):
     修改用户信息
     """
     # 使用了POST方法
-    if request.POST:
+    if request.method == 'POST':
         try:
             userid = request.COOKIES.GET.get('userid')
             # 用户不存在

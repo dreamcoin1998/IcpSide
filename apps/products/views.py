@@ -36,7 +36,7 @@ def create(request):
     发布产品信息接口
     """
     # 使用POST方法
-    if request.POST:
+    if request.method == 'POST':
         try:
             userid_post = request.COOKIES.GET.get('userid')
             if not userid_post or not Yonghu.objects.filter(userid=userid_post):
@@ -76,7 +76,7 @@ def update(request):
     发布产品信息接口
     """
     # 使用POST方法
-    if request.POST:
+    if request.method == 'POST':
         try:
             userid_post = request.COOKIES.GET.get('userid')
             # 用户id不存在
