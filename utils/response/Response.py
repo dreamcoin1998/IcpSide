@@ -24,7 +24,7 @@ class Response(JsonResponse):
         """
         params = {
             "code": self.code,
-            "data": data if data else {},  # 未传data默认为{}
+            "data": data if data is not None else {},  # 未传data默认为{}
             "msg": self.msg,
         }
         if total or total_page or page:

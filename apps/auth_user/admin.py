@@ -17,7 +17,7 @@ class YonghuAdmin(admin.ModelAdmin):
 @admin.register(VerificationCode)
 class VerificationCodeAdmin(admin.ModelAdmin):
 
-    list_display = ("verificationId", "code_type", "phoneOrEmail", "code", "update_time")
+    list_display = ("verificationId", "verification_type", "phoneOrEmail", "code", "update_time")
 
 
 @admin.register(Sensitives)

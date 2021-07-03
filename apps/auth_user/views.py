@@ -282,28 +282,29 @@ def change_phone(request):
     """
     修改手机-phone
     """
-    # 获取前端传来的消息
-    try:
-        userid_post = request.COOKIES.GET.get("userid")
-        phone_post = request.GET.get("phone")
-        code_post = request.GET.get("code")
-        # 验证码正确
-        if VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post):
-            try:
-                user_obj = Yonghu.objects.filter(userid=userid_post).first()
-                user_obj.phone = phone_post
-                user_obj.save()
-                result = format_user_data(user_obj)
-                return Response.Response(data=result)
-            except:
-                return Response.BackendErrorResponse()
-        # 验证码不正确
-        else:
-            result = Response.ClientErrorResponse()
-            return result
-    # 错误
-    except:
-        return Response.BackendErrorResponse()
+    user_obj = JSONWebTokenAuthentication().authenticate(request)
+    # 未登录
+    if user_obj is None:
+        return Response.NotLoginResponse()
+    phone_post = request.GET.get("phone")
+    code_post = request.GET.get("code")
+    password = request.GET.get("password")
+    # 密码正确
+    if not check_password(password, user_obj.password):
+        return Response.PhoneOrEmailErrorResponse()
+    # 验证码正确
+    if VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post, verification_type="phone"):
+        try:
+            user_obj.phone = phone_post
+            user_obj.save()
+            result = format_user_data(user_obj)
+            return Response.Response(data=result)
+        except:
+            return Response.BackendErrorResponse()
+    # 验证码不正确
+    else:
+        result = Response.ClientErrorResponse()
+        return result
 
 
 def change_email(request):
@@ -311,31 +312,30 @@ def change_email(request):
     修改邮箱-email
     """
     # 获取前端传来的消息
-    try:
-        userid_post = request.COOKIES.GET['userid']
-        email_post = request.GET['email']
-        code_post = request.GET['code']
-        # 验证码正确
-        if VerificationCode.objects.filter(phoneOrEmail=email_post, code=code_post):
-            try:
-                user_obj = Yonghu.objects.filter(userid=userid_post).first()
-                user_obj.email = email_post
-                user_obj.save()
-                result = {
-                    "data": user_obj.userid,
-                    "username": user_obj.username,
-                    "email": user_obj.email,
-                    "phone": user_obj.phone,
-                    "introduction": user_obj.introduction,
-                    "avatar": user_obj.avatar.url
-                }
-                return Response.Response(data=result)
-            except:
-                return Response.BackendErrorResponse()
-        # 验证码不正确
-        else:
-            result = Response.ClientErrorResponse()
-            return result
-        # 错误
-    except:
-        return Response.BackendErrorResponse()
+    user_obj = JSONWebTokenAuthentication().authenticate(request)
+    # 未登录
+    if user_obj is None:
+        return Response.NotLoginResponse()
+    email_post = request.GET.get("email")
+    code_post = request.GET.get("code")
+    password = request.GET.get("password")
+    # 密码正确
+    if not check_password(password, user_obj.password):
+        return Response.PhoneOrEmailErrorResponse()
+    # 验证码正确
+    verify_filter = VerificationCode.objects.filter(phoneOrEmail=email_post, code=code_post, verification_type="email")
+    if verify_filter:
+        # 验证码过期
+        if not code_validated(verify_filter.filter(), 5):
+            return Response.CodeOverTimeResponse()
+        try:
+            user_obj.email = email_post
+            user_obj.save()
+            result = format_user_data(user_obj)
+            return Response.Response(data=result)
+        except:
+            return Response.BackendErrorResponse()
+    # 验证码不正确
+    else:
+        result = Response.ClientErrorResponse()
+        return result

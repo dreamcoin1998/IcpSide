@@ -5,6 +5,8 @@ from .models import ProductType, ProductInfo
 from auth_user.models import Yonghu
 from datetime import datetime
 from django.core.paginator import Paginator
+from auth_user.views import format_user_data
+from utils.jwt_auth.authentication import JSONWebTokenAuthentication
 
 
 def creat_result(product_obj):
@@ -20,13 +22,7 @@ def creat_result(product_obj):
         "update_time": product_obj.update_time,
         "price": product_obj.price,
         "inventory": product_obj.inventory,
-        "user_info": {
-            "userid": product_obj.user.userid,
-            "username": product_obj.user.username,
-            "email": product_obj.user.email,
-            "phone": product_obj.user.phone,
-            "verification": product_obj.user.verification
-        },
+        "user_info": format_user_data(product_obj.user),
         "images": product_obj.images
     }
     return result
@@ -135,6 +131,7 @@ def get_product_info(request, product_id):
         except:
             result = Response.BackendErrorResponse()
             return result
+    return Response.BackendErrorResponse()
 
 
 def product_types(request):
@@ -170,23 +167,21 @@ def my_products(request):
     # 若使用GET方法
     if request.method == 'GET':
         # 返回信息
-        try:
-            userid_post = request.COOKIES.GET.get('userid')
-            # 用户id不存在
-            if not userid_post or not Yonghu.objects.filter(userid=userid_post):
-                return Response.NotLoginResponse()
-            # 从数据库查询产品类型信息
-            the_products = ProductInfo.objects.filter(userid=userid_post)
-            count = int(request.GET.get('count', default='10'))
-            page = int(request.GET.get('page', default='1'))
-            paginator = Paginator(the_products, count)
-            page_objs = paginator.get_page(page)
-            data = [creat_result(page_obj) for page_obj in page_objs]
-            return Response.Response(data=data)
+        user_obj = JSONWebTokenAuthentication().authenticate(request)
+        if user_obj is None:
+            return Response.NotLoginResponse()
+        # 从数据库查询产品类型信息
+        the_products = ProductInfo.objects.filter(user=user_obj).order_by("-update_time")
+        count = int(request.GET.get('count', default='10'))
+        page = int(request.GET.get('page', default='1'))
+        paginator = Paginator(the_products, count)
+        total_page = paginator.page_range[-1]
+        page_objs = paginator.get_page(page)
+        data = [creat_result(page_obj) for page_obj in page_objs]
+        return Response.Response(data=data, total=the_products.count(), total_page=total_page, page=page)
         # 后端错误
-        except:
-            result = Response.BackendErrorResponse()
-            return result
+    result = Response.BackendErrorResponse()
+    return result
 
 
 def products_type(request):
@@ -196,27 +191,25 @@ def products_type(request):
     # 若使用GET方法且存在userid、产品类型id
     if request.method == 'GET':
         # 返回信息
-        try:
-            # 从数据库查询产品类型信息
-            product_type_id = request.GET.get('id')
-            # 若类型id不存在
-            if not ProductType.objects.filter(product_type_id = product_type_id):
-                return Response.ProductTypeErrorResponse()
-            count = int(request.GET.get('count', default='10'))
-            page = int(request.GET.get('page', default='1'))
-            # 筛选该类型下的产品
-            the_products = ProductInfo.objects.filter(product_type_id = product_type_id)
-            # 对筛选出来的产品the_products进行分页，每页为count个
-            paginator = Paginator(the_products, count)
-            # 获取总的页数
-            page_objs = paginator.get_page(page)
-            # 返回结果
-            data = [creat_result(page_obj) for page_obj in page_objs]
-            return Response.Response(data=data)
-        # 后端错误
-        except:
-            result = Response.BackendErrorResponse()
-            return result
+        # 从数据库查询产品类型信息
+        product_type_id = request.GET.get('id')
+        # 若类型id不存在
+        if not ProductType.objects.filter(product_type_id = product_type_id):
+            return Response.ProductTypeErrorResponse()
+        count = int(request.GET.get('count', default='10'))
+        page = int(request.GET.get('page', default='1'))
+        # 筛选该类型下的产品
+        the_products = ProductInfo.objects.filter(product_type_id = product_type_id)
+        # 对筛选出来的产品the_products进行分页，每页为count个
+        paginator = Paginator(the_products, count)
+        total_page = paginator.page_range[-1]
+        # 获取总的页数
+        page_objs = paginator.get_page(page)
+        # 返回结果
+        data = [creat_result(page_obj) for page_obj in page_objs]
+        return Response.Response(data=data, total=the_products.count(), total_page=total_page, page=page)
+    result = Response.BackendErrorResponse()
+    return result
 
 
 def recommond(request):
@@ -264,14 +257,17 @@ def search_products(request):
             product_name = request.GET.get('product_name', default='1')
             count = int(request.GET.get('count', default='10'))
             page = int(request.GET.get('page', default='1'))
-            the_products = ProductInfo.objects.filter(product_name = product_name)
+            # 搜索包含product_name字段的产品
+            the_products = ProductInfo.objects.filter(product_name__contains=product_name)
             # 对筛选出来的产品the_products进行分页，每页为count个
             paginator = Paginator(the_products, count)
             # 获取总的页数
             page_objs = paginator.get_page(page)
+            total_page = paginator.page_range[-1]
             # 返回结果
             data = [creat_result(page_obj) for page_obj in page_objs]
-            return Response.Response(data=data)
+            return Response.Response(data=data, total=the_products.count(), total_page=total_page, page=page)
         # 后端错误
         except:
             return Response.BackendErrorResponse()
+    return Response.BackendErrorResponse()
