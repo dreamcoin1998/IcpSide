@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'products',
     "access_log",
     "image",
+    "detect",
     # "djcelery",
     # "corsheaders"
 ]
