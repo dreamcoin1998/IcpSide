@@ -1,3 +1,15 @@
-from django.contrib import admin
+"""
+设置admin页面
 
-# Register your models here.
+Creator: Gao Junbin
+Update: 2021-07-02
+"""
+from django.contrib import admin
+from .models import ImagePath
+
+
+@admin.register(ImagePath)
+class ImagePathAdmin(admin.ModelAdmin):
+
+    list_display = ("id", "url", "content_type", "object_id")
+

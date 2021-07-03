@@ -15,4 +15,4 @@ class ProductTypeAdmin(admin.ModelAdmin):
 
 @admin.register(ProductInfo)
 class ProductInfoAdmin(admin.ModelAdmin):
-    list_display = ("id", "product_name", "product_type", "product_detail", "create_time", "update_time", "user", "price", "inventory")
+    list_display = ("id", "product_name", "product_type", "product_detail", "create_time", "update_time", "user", "price", "inventory", "images")

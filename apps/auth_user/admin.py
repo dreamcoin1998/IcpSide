@@ -11,7 +11,7 @@ from .models import Yonghu, VerificationCode, Sensitives
 @admin.register(Yonghu)
 class YonghuAdmin(admin.ModelAdmin):
 
-    list_display = ('userid', 'username', 'email', 'phone', 'introduction', 'create_time', 'avatar')
+    list_display = ('userid', 'username', 'email', 'phone', 'introduction', "avatar_url", 'create_time')
 
 
 @admin.register(VerificationCode)

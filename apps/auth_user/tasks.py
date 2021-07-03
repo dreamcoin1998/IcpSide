@@ -1,11 +1,5 @@
 from __future__ import absolute_import
-
-import datetime
-from configparser import ConfigParser
-from time import sleep
-import json
 import requests
-from celery import shared_task
 from django.core.mail import send_mail
 import random
 from IcpSide import settings
@@ -46,21 +40,24 @@ def send_code_email(email, code=None):
     print(send_stutas)
     if send_stutas:
         print('========发送成功')
-        pass
+    else:
+        print("发送邮件失败", send_stutas)
 
 
 @app.task()
 def send_code_phone(phone: str, code=None):
-    print('========发送邮件中')
+    print('========发送短信中')
     resp = requests.post("http://sms-api.luosimao.com/v1/send.json",
                          auth=("api", "3646f0434444618610f6476b1a984c9a"),
                          data={
                              "mobile": phone,
                              "message": f"欢迎注册，您的验证码为:{code}，该验证码5分钟内有效【铁壳测试】"
                          },
-                         verify=False
+                         verify=False,
+                         timeout=60
                          )
     error = resp.json().get("error")
     if error == 0:
         print('========发送成功')
-
+    else:
+        print("发送失败", resp.json())

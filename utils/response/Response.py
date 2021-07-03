@@ -7,6 +7,7 @@ Update Time: 2021/06/21
 """
 
 from django.http import JsonResponse
+from IcpSide import settings
 
 
 class Response(JsonResponse):
@@ -14,7 +15,7 @@ class Response(JsonResponse):
     code = 0
     msg = "Ok"
 
-    def __init__(self, data=None, total=None, total_page=None, page=None, **kwargs):
+    def __init__(self, data=None, total=None, total_page=None, page=None, token=None, **kwargs):
         """
         @param data 这里的data是响应数据{code: 0, data: [], msg: ""}的data
         @param total 结果总数
@@ -31,6 +32,15 @@ class Response(JsonResponse):
                 "total": total,
                 "totalPage": total_page,
                 "page": page
+            })
+        # 携带token，增加headers
+        if token:
+            token_prefix = settings.JWT_AUTH.get("JWT_AUTH_HEADER_PREFIX")
+            kwargs.update({
+                "headers": {
+                    "Access-Control-Expose-Headers": "Authorization",
+                    "Authorization": token_prefix + " " + token,
+                }
             })
         super(Response, self).__init__(params, **kwargs)
 
@@ -93,6 +103,12 @@ class ProductTypeErrorResponse(Response):
 
     code = 4008
     msg = "产品类型不存在"
+
+
+class CodeOverTimeResponse(Response):
+
+    code = 4008
+    msg = "验证码过期"
 
 
 class BackendErrorResponse(Response):

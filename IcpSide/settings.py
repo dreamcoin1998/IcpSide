@@ -9,11 +9,16 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import datetime
 from pathlib import Path
+
+import djcelery
+
 from .config import my_database
 import sys
 import os
+from . import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,13 +30,12 @@ sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y+xf52n1q#6(4hzc9vwlu2jts)6vs7y%(68hyoe1=mgz(&&s93'
+SECRET_KEY = config.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -57,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -84,7 +88,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'IcpSide.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -92,13 +95,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': my_database.name,
-        'HOST': my_database.host, # 数据库地址，本机 ip 地址 127.0.0.1
-        'PORT': my_database.port, # 端口
+        'HOST': my_database.host,  # 数据库地址，本机 ip 地址 127.0.0.1
+        'PORT': my_database.port,  # 端口
         'USER': my_database.user,  # 数据库用户名
-        'PASSWORD': my_database.password, # 数据库密码
+        'PASSWORD': my_database.password,  # 数据库密码
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -118,7 +120,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -132,25 +133,40 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+### Celery配置
+# celery回去查看INSTALLD_APP下查看每个app下面的目录中的tasks.py文件，找到标记为task的方法，将它们注册为celery task
+# broker的代理地址
+BROKER_URL = config.BROKER_URL
+#celery结果返回，可用于跟踪结果
+CELERY_RESULT_BACKEND = config.CELERY_RESULT_BACKEND
+# tasks.py文件所在位置
+CELERY_IMPORTS = ('IcpSide.tasks', 'apps.auth_user.tasks',)
+#celery时区设置，使用settings中TIME_ZONE同样的时区
+CELERY_TIMEZONE = TIME_ZONE
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+# 每个worker执行了多少任务就会销毁，防止内存泄露，默认是无限的
+CELERYD_MAX_TASKS_PER_CHILD = 5
+# 设置并发的worker数量
+CELERYD_CONCURRENCY = 4
+# 有些情况可以防止死锁
+CELERY_FORCE_EXECV = True
+CELERY_ENABLE_UTC = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # simpleui 配置
 SIMPLEUI_HOME_ACTION = True
 
-
 # COOKIE过期时间
 EXPIRE_TIME = 90 * 365 * 24 * 60 * 60
-
 
 # 邮箱配置
 # 设置邮件域名
@@ -165,33 +181,38 @@ EMAIL_WEBITE_NAME = '超级管理员'
 EMAIL_HOST_PASSWORD = 'xfYC4mkT2QLPuBQv'
 # 设置是否启用安全链接
 EMAIL_USE_SSL = True
-#是否使用TLS安全传输协议
+# 是否使用TLS安全传输协议
 EMAIL_USE_TLS = False
 
 ERROR_FROM = 'gaojunbin@gaoblog.cn'
 
-
 # 添加参数为true
 CORS_ORIGIN_ALLOW_ALL = True
-#下面这些可以不用设置
-#跨域增加忽略
+# 下面这些可以不用设置
+# 跨域增加忽略
 CORS_ALLOW_CREDENTIALS = True
-#设置白名单
-CORS_ALLOW_METHODS = (  'DELETE',  'GET',  'OPTIONS',  'PATCH',  'POST',  'PUT',  'VIEW', )
+# 设置白名单
+CORS_ALLOW_METHODS = ('DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'VIEW',)
 CORS_ALLOW_HEADERS = (
-'XMLHttpRequest',
-'X_FILENAME',
-'accept-encoding',
-'authorization',
-'content-type',
-'dnt',
-'origin',
-'user-agent',
-'x-csrftoken',
-'x-requested-with',
-'Pragma',
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+    'Authorization'
+    "Access-Control-Expose-Headers"
 )
 
 
-# 第三方接口
-
+# jwt接口验证
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=30*12*90),
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_AUTH_HEADER_PREFIX': "ICP"
+}

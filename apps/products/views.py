@@ -26,7 +26,8 @@ def creat_result(product_obj):
             "email": product_obj.user.email,
             "phone": product_obj.user.phone,
             "verification": product_obj.user.verification
-        }
+        },
+        "images": product_obj.images
     }
     return result
 

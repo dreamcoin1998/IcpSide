@@ -1,5 +1,6 @@
 from django.db import models
 from image.models import ImagePath
+from django.contrib.contenttypes.fields import GenericRelation
 
 
 class Yonghu(models.Model):  ## 用户表
@@ -9,9 +10,15 @@ class Yonghu(models.Model):  ## 用户表
     email = models.CharField(max_length=100, blank=True, null=True, verbose_name='邮箱')
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='手机')
     introduction = models.CharField(max_length=100, blank=True, null=True, verbose_name='个人介绍')
-    verification = models.BooleanField(auto_created=False, verbose_name='是否已认证')
+    verification = models.BooleanField(auto_created=False, verbose_name='是否已认证', default=False)
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    avatar = models.OneToOneField(ImagePath, on_delete=models.DO_NOTHING, verbose_name='头像')
+    avatar = GenericRelation(ImagePath)
+
+    @property
+    def avatar_url(self):
+        if self.avatar.all():
+            return self.avatar.all().first().url
+        return ""
 
     class Meta:
         verbose_name = "用户"
@@ -27,7 +34,7 @@ class VerificationCode(models.Model):  # 验证码表，后期修改不用下划
     verification_type = models.CharField(max_length=10, null=False, choices=code_type, verbose_name="验证类型")
     phoneOrEmail = models.CharField(max_length=100, verbose_name="邮箱或手机号")
     code = models.CharField(max_length=6, null=False, verbose_name="验证码")
-    update_time = models.DateTimeField(auto_now_add=True, blank=True, verbose_name="发送时间")
+    update_time = models.DateTimeField(auto_now=True, blank=True, verbose_name="发送时间")
 
     class Meta:
         verbose_name = "验证码"

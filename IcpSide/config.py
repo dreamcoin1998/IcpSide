@@ -4,12 +4,6 @@
 ### django APP秘钥
 SECRET_KEY = '-qhsgt6r3a4lb1*181+hl141#o@7@am29wa8v$^@dgp(1e)=yj'
 
-### mysql 配置
-MYSQL_HOST = 'cdb-07n3b91f.gz.tencentcdb.com'
-MYSQL_PORT = 10081
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = '18759799353gjb!'
-
 ### 邮件发送配置
 # 发件人授权码
 EMAIL_HOST_PASSWORD = 'xfYC4mkT2QLPuBQv'
@@ -29,3 +23,12 @@ class my_database():
     name = 'icpside1'
     user = 'icpside1'
     password = 'IcpSidetest'
+
+
+# 腾讯云对象存储
+
+TENCENT_SECRET_ID = "AKIDCGPL5mIvTr472jIksmQr30iFXeYIIEKA"
+TENCENT_SECRET_KEY = "kEYbWFk00mIfokRzHK6d083j9TXUDl37"
+TENCENT_REGION = "ap-shenzhen-fsi"
+TENCENT_SCHEME = "https"
+TENCENT_BASE_URL = "https://icpside-1258554384.cos.ap-shenzhen-fsi.myqcloud.com/"
