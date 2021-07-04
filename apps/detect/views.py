@@ -5,7 +5,7 @@ import time, json
 
 from auth_user.models import Sensitives
 from django.http import JsonResponse
-
+from utils.response import Response
 
 # DFA算法
 # 思路：获取敏感词表--把敏感词表做成字典--传入检测文本--对文本的过滤
@@ -121,19 +121,21 @@ def detect(request):
     print(plain_text)
     print(result_text)
     # 返回
-    result = {
-        "filted_text": result_text
+    data = {
+            "filted_text": result_text
     }
     time2 = time.time()
     print('time2', time2)
     print('总共耗时：' + str(time2 - time1) + 's')
-    return JsonResponse(data = result)
+    return Response.Response(data = data)
 
 
 def detect_sensitives(plain_text: str):
     """
     敏感词的过滤接口，仅后端可用
     """
+    # 计时器
+    time1 = time.time()
     # 构造一个过滤对象
     gfw = DFAFilter()
     # 输入敏感词数组，从txt得到
@@ -150,7 +152,7 @@ def detect_sensitives(plain_text: str):
     time2 = time.time()
     print('总共耗时：' + str(time2 - time1) + 's')
     # 返回
-    result = {
-        "filted_text":result_text
-    }
-    return JsonResponse(data = result)
+    return result_text
+
+
+
