@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import path
 from auth_user import views
-from utils.sensitives import detect_sensitives
 
 urlpatterns = [
     path('register/', views.register),   #注册
@@ -14,5 +13,4 @@ urlpatterns = [
     path('verification/phone/', views.change_phone),
     path('verification/email/', views.change_email),
     path('update_info/', views.update_info),
-    path('detect/', detect_sensitives.detect),  # 敏感词检测
 ]
