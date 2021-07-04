@@ -11,6 +11,7 @@ except ImportError:
     MiddlewareMixin = object
 from access_log.models import AccessLog
 from auth_user.models import Yonghu
+from utils.jwt_auth.authentication import JSONWebTokenAuthentication
 
 
 class AccessLogRecord(MiddlewareMixin):
@@ -24,19 +25,12 @@ class AccessLogRecord(MiddlewareMixin):
         # 获取url
         url = request.path_info
         # 从cookie中获取user
-        userid = request.COOKIES.get("userid")
-        user_obj = None
-        if userid:
-            # 获取user对象
-            user = Yonghu.objects.filter(pk=int(userid))
-            # 如果能找到user，则保存user对象
-            if user.count() == 1:
-                user_obj = user[0]
+        user_obj = JSONWebTokenAuthentication().authenticate(request)
         # 储存access_log
         access_log_obj = AccessLog()
         access_log_obj.ip = ip
         access_log_obj.url = url
-        access_log_obj.user = user_obj
+        access_log_obj.user = user_obj if user_obj else None
         access_log_obj.save()
 
     def process_response(self, request, response):
