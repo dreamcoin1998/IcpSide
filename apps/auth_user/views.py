@@ -225,7 +225,7 @@ def login_email(request):
 
 def change_passswd_pnone(request):
     """
-    找回密码-phone
+    重置密码-phone
     """
     # 使用了POST方法
     if request.method == "POST":
@@ -233,9 +233,11 @@ def change_passswd_pnone(request):
         data = json.loads(data)
         phone_post = data.get("phone")
         password_post = data.get("password")
+        if password_post is None or len(password_post) < 8:
+            return Response.PasswordLengthResponse()
         code_post = data.get("code")
         # 验证码正确
-        if VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post):
+        if VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post, verification_type="phone"):
             user_obj = Yonghu.objects.filter(phone=phone_post).first()
             user_obj.password = make_password(password_post)
             user_obj.save()
@@ -252,7 +254,7 @@ def change_passswd_pnone(request):
 
 def change_passswd_email(request):
     """
-    找回密码-email
+    重置密码-email
     """
     # 使用了POST方法
     if request.method == "POST":
@@ -260,9 +262,11 @@ def change_passswd_email(request):
         data = json.loads(data)
         email_post = data.get("email")
         password_post = data.get("password")
+        if password_post is None or len(password_post) < 8:
+            return Response.PasswordLengthResponse()
         code_post = data.get("code")
         # 验证码正确
-        if VerificationCode.objects.filter(phoneOrEmail=email_post, code=code_post):
+        if VerificationCode.objects.filter(phoneOrEmail=email_post, code=code_post, verification_type="email"):
             user_obj = Yonghu.objects.filter(email=email_post).first()
             user_obj.password = make_password(password_post)
             user_obj.save()
@@ -270,7 +274,6 @@ def change_passswd_email(request):
             payload = jwt_payload_handler(user_obj)
             token = jwt_encode_handler(payload)
             response = Response.Response(data=result, token=token)
-            response.set_cookie('userid', user_obj.userid, expires=EXPIRE_TIME)
             return response
         # 验证码不正确
         else:
@@ -286,14 +289,22 @@ def change_phone(request):
     # 未登录
     if user_obj is None:
         return Response.NotLoginResponse()
-    phone_post = request.GET.get("phone")
-    code_post = request.GET.get("code")
-    password = request.GET.get("password")
+    data = request.body.decode("utf8")
+    data = json.loads(data)
+    phone_post = data.get("phone")
+    if Yonghu.objects.filter(phone=phone_post):
+        return Response.PhoneOrEmailOccupied()
+    code_post = data.get("code")
+    password = data.get("password")
     # 密码正确
     if not check_password(password, user_obj.password):
         return Response.PhoneOrEmailErrorResponse()
+    verify_filter = VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post, verification_type="phone")
     # 验证码正确
-    if VerificationCode.objects.filter(phoneOrEmail=phone_post, code=code_post, verification_type="phone"):
+    if verify_filter:
+        # 验证码过期
+        if not code_validated(verify_filter.first(), 5):
+            return Response.CodeOverTimeResponse()
         try:
             user_obj.phone = phone_post
             user_obj.save()
@@ -316,9 +327,13 @@ def change_email(request):
     # 未登录
     if user_obj is None:
         return Response.NotLoginResponse()
-    email_post = request.GET.get("email")
-    code_post = request.GET.get("code")
-    password = request.GET.get("password")
+    data = request.body.decode("utf8")
+    data = json.loads(data)
+    email_post = data.get("email")
+    if Yonghu.objects.filter(email=email_post):
+        return Response.PhoneOrEmailOccupied()
+    code_post = data.get("code")
+    password = data.get("password")
     # 密码正确
     if not check_password(password, user_obj.password):
         return Response.PhoneOrEmailErrorResponse()
@@ -326,7 +341,7 @@ def change_email(request):
     verify_filter = VerificationCode.objects.filter(phoneOrEmail=email_post, code=code_post, verification_type="email")
     if verify_filter:
         # 验证码过期
-        if not code_validated(verify_filter.filter(), 5):
+        if not code_validated(verify_filter.first(), 5):
             return Response.CodeOverTimeResponse()
         try:
             user_obj.email = email_post

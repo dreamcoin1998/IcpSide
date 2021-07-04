@@ -1,9 +1,12 @@
 import json
 from django.http.response import JsonResponse
+
+from image.models import ImagePath
+from utils.image_io.image_io import upload_image
 from utils.response import Response
 from .models import ProductType, ProductInfo
 from auth_user.models import Yonghu
-from datetime import datetime
+from django.db import transaction
 from django.core.paginator import Paginator
 from auth_user.views import format_user_data
 from utils.jwt_auth.authentication import JSONWebTokenAuthentication
@@ -33,39 +36,47 @@ def create(request):
     发布产品信息接口
     """
     # 使用POST方法
-    if request.POST:
-        try:
-            userid_post = request.COOKIES.GET.get('userid')
-            if not userid_post or not Yonghu.objects.filter(userid=userid_post):
-                return Response.NotLoginResponse()
-            # 提取前端数据
-            data = request.body.decode('utf-8')
-            data = json.loads(data)
-            product_name_post = data.get('product_name')
-            product_detail_post = data.get('product_detail')
-            price_post = data.get('price')
-            inventory_post = data.get('inventory')
-            product_type_id_post = data.get('product_type_id')
-            # 产品type存在
-            if ProductType.objects.filter(product_type_id=product_type_id_post):
-                product_type_obj = ProductType.objects.filter(product_type_id=product_type_id_post).first()
-                user_obj = Yonghu.objects.filter(userid=userid_post).first()
+    if request.method == "POST":
+        user_obj = JSONWebTokenAuthentication().authenticate(request)
+        if user_obj is None:
+            return Response.NotLoginResponse()
+        # 提取前端数据
+        image_stream = request.FILES.get("file")
+        product_name_post = request.POST.get('product_name')
+        product_detail_post = request.POST.get('product_detail')
+        price_post = request.POST.get('price')
+        inventory_post = request.POST.get('inventory')
+        product_type_id_post = request.POST.get('product_type_id')
+        print(request)
+        product_type_filter = ProductType.objects.filter(product_type_id=product_type_id_post)
+        # 产品type存在
+        if product_type_filter:
+            product_type_obj = product_type_filter.first()
+            with transaction.atomic():
+                sid = transaction.savepoint()
                 new_product = ProductInfo(product_name=product_name_post,
                                           product_detail=product_detail_post,
                                           price=price_post,
                                           inventory=inventory_post,
-                                          product_type_id=product_type_obj,
-                                          userid=user_obj)
+                                          product_type=product_type_obj,
+                                          user=user_obj)
                 new_product.save()
-                # 返回结果
-                result = creat_result(new_product)
-                return Response.Response(data=result)
-            else:
-                return Response.ProductTypeErrorResponse()
-        # 后端错误
-        except Exception as e:
-            # TODO: 写日志
-            return Response.BackendErrorResponse()
+                return_url = upload_image(image_stream)
+                if return_url:
+                    image_path = ImagePath()
+                    image_path.url = return_url
+                    image_path.content_object = new_product
+                    image_path.save()
+                    transaction.savepoint_commit(sid)
+                else:
+                    transaction.savepoint_rollback(sid)
+                    return Response.BackendErrorResponse()
+            # 返回结果
+            result = creat_result(new_product)
+            return Response.Response(data=result)
+        else:
+            return Response.ProductTypeErrorResponse()
+    return Response.BackendErrorResponse()
 
 
 def update(request):
