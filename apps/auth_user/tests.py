@@ -1,8 +1,9 @@
 from django.test import TestCase
 import datetime, random
+from auth_user.models import Sensitives
 # from .models import Verification_Code
 # Create your tests here.
-a = datetime.datetime.now()
-print(a)
-x = random.randint(000000,999999)
-print(x)
+def get_all_sensitives():
+    sensitives_obj = Sensitives.objects.all()
+    print(sensitives_obj, type(sensitives_obj))
+get_all_sensitives()

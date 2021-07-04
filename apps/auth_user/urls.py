@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from . import views
+from auth_user import views
 
 urlpatterns = [
     path('register/', views.register),   #注册
@@ -12,4 +12,5 @@ urlpatterns = [
     path('change_passswd_email/', views.change_passswd_email),
     path('verification/phone/', views.change_phone),
     path('verification/email/', views.change_email),
+    path('update_info/', views.update_info),
 ]

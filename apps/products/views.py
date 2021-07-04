@@ -10,6 +10,7 @@ from django.db import transaction
 from django.core.paginator import Paginator
 from auth_user.views import format_user_data
 from utils.jwt_auth.authentication import JSONWebTokenAuthentication
+from utils.detect.detect_sensitives import detect_sensitives
 
 
 def creat_result(product_obj):
@@ -43,7 +44,9 @@ def create(request):
         # 提取前端数据
         image_stream = request.FILES.get("file")
         product_name_post = request.POST.get('product_name')
+        product_name = detect_sensitives(product_name_post)
         product_detail_post = request.POST.get('product_detail')
+        product_detail = detect_sensitives(product_detail_post)
         price_post = request.POST.get('price')
         inventory_post = request.POST.get('inventory')
         product_type_id_post = request.POST.get('product_type_id')
@@ -54,8 +57,8 @@ def create(request):
             product_type_obj = product_type_filter.first()
             with transaction.atomic():
                 sid = transaction.savepoint()
-                new_product = ProductInfo(product_name=product_name_post,
-                                          product_detail=product_detail_post,
+                new_product = ProductInfo(product_name=product_name,
+                                          product_detail=product_detail,
                                           price=price_post,
                                           inventory=inventory_post,
                                           product_type=product_type_obj,
@@ -84,7 +87,7 @@ def update(request):
     发布产品信息接口
     """
     # 使用POST方法
-    if request.POST:
+    if request.method == 'POST':
         try:
             userid_post = request.COOKIES.GET.get('userid')
             # 用户id不存在
@@ -94,8 +97,10 @@ def update(request):
             data = request.body.decode('utf-8')
             data = json.loads(data)
             product_id = data.get('id')
-            product_name = data.get('userid')
-            product_detail = data.get('product_detail')
+            product_name_post = request.POST.get('product_name')
+            product_name = detect_sensitives(product_name_post)
+            product_detail_post = request.POST.get('product_detail')
+            product_detail = detect_sensitives(product_detail_post)
             price = data.get('price')
             inventory = data.get('inventory')
             product_type_id = data.get('product_type_id')
@@ -263,22 +268,18 @@ def search_products(request):
     # 若使用GET方法且存在userid
     if request.method == 'GET':
         # 返回信息
-        try:
-            # 从数据库查询产品类型信息
-            product_name = request.GET.get('product_name', default='1')
-            count = int(request.GET.get('count', default='10'))
-            page = int(request.GET.get('page', default='1'))
-            # 搜索包含product_name字段的产品
-            the_products = ProductInfo.objects.filter(product_name__contains=product_name)
-            # 对筛选出来的产品the_products进行分页，每页为count个
-            paginator = Paginator(the_products, count)
-            # 获取总的页数
-            page_objs = paginator.get_page(page)
-            total_page = paginator.page_range[-1]
-            # 返回结果
-            data = [creat_result(page_obj) for page_obj in page_objs]
-            return Response.Response(data=data, total=the_products.count(), total_page=total_page, page=page)
-        # 后端错误
-        except:
-            return Response.BackendErrorResponse()
+        # 从数据库查询产品类型信息
+        product_name = request.GET.get('product_name', default='1')
+        count = int(request.GET.get('count', default='10'))
+        page = int(request.GET.get('page', default='1'))
+        # 搜索包含product_name字段的产品
+        the_products = ProductInfo.objects.filter(product_name__contains=product_name)
+        # 对筛选出来的产品the_products进行分页，每页为count个
+        paginator = Paginator(the_products, count)
+        # 获取总的页数
+        page_objs = paginator.get_page(page)
+        total_page = paginator.page_range[-1]
+        # 返回结果
+        data = [creat_result(page_obj) for page_obj in page_objs]
+        return Response.Response(data=data, total=the_products.count(), total_page=total_page, page=page)
     return Response.BackendErrorResponse()

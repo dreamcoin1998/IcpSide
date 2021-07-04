@@ -14,7 +14,7 @@ class AccessLog(models.Model):
     ip = models.CharField(max_length=50, verbose_name="IP")
     url = models.CharField(max_length=256, verbose_name="访问地址")
     datetime = models.DateTimeField(verbose_name="访问日期", auto_now_add=True)
-    user = models.OneToOneField(Yonghu, on_delete=models.DO_NOTHING, null=True)
+    user = models.ForeignKey(Yonghu, on_delete=models.DO_NOTHING, null=True)
 
     @property
     def username(self):

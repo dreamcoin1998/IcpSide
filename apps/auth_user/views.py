@@ -4,10 +4,10 @@ Function: 验证相关信息
 Time: 2021-06-26
 """
 import json
-
+from utils.detect.detect_sensitives import detect_sensitives
 from django.contrib.auth.hashers import make_password, check_password
 from IcpSide.settings import EXPIRE_TIME
-from auth_user.models import Yonghu, VerificationCode
+from auth_user.models import Yonghu, VerificationCode, Sensitives
 from utils.response import Response
 import datetime
 from .tasks import random_str, send_code_email, send_code_phone
@@ -15,6 +15,7 @@ from utils.image_io.image_io import upload_image
 from image.models import ImagePath
 from utils.jwt_auth.authentication import jwt_payload_handler, JSONWebTokenAuthentication
 from rest_framework_jwt.serializers import jwt_encode_handler
+from django.db import transaction
 
 
 def verify_phone_email_code(phone_or_email, code_post, username_post, password, introduction, type='phone'):
@@ -61,23 +62,26 @@ def register(request):
         # 提取前端数据
         image_stream = request.FILES.get('file')
         username_post = request.POST.get('username')
+        # 敏感词过滤 用户名
+        username = detect_sensitives(username_post)
         password_post = request.POST.get('password')
         phone_or_email = request.POST.get('phoneOrEmail')
         code_post = request.POST.get("code")
-        introduction = request.POST.get("introduction")
+        introduction_post = request.POST.get("introduction")
+        introduction = detect_sensitives(introduction_post)
         # 密码长度小于8
         if len(password_post) < 8:
             return Response.PasswordLengthResponse()
         password = make_password(password_post)
         # 用手机号验证
         if request.POST.get("type") == 'phone':
-            new_user, verification_status = verify_phone_email_code(phone_or_email, code_post, username_post,
+            new_user, verification_status = verify_phone_email_code(phone_or_email, code_post, username,
                                                                     password, introduction)
             if not verification_status:
                 return new_user
         # 用邮箱验证
         elif request.POST.get("type") == 'email':
-            new_user, verification_status = verify_phone_email_code(phone_or_email, code_post, username_post,
+            new_user, verification_status = verify_phone_email_code(phone_or_email, code_post, username,
                                                                     password, introduction, type="email")
             if not verification_status:
                 return new_user
@@ -354,3 +358,48 @@ def change_email(request):
     else:
         result = Response.ClientErrorResponse()
         return result
+
+
+def update_info(request):
+    """
+    修改用户信息
+    """
+    # 使用了POST方法
+    if request.method == 'POST':
+        user_obj = JSONWebTokenAuthentication().authenticate(request)
+        if user_obj is None:
+            return Response.NotLoginResponse()
+        # 提取前端数据
+        username_post = request.POST.get('username')
+        username = detect_sensitives(username_post)
+        introduction_post = request.POST.get('introduction')
+        introduction = detect_sensitives(introduction_post)
+        image_stream = request.FILES.get('file')
+        with transaction.atomic():
+            try:
+                # 设置一个保存点
+                sid = transaction.savepoint()
+                # TODO: 删除存储桶上的图片对象
+                # 先删除头像关联的image对象
+                user_obj.avatar.delete()
+                # 保存ImagePath对象
+                url = upload_image(image_stream)
+                image_obj = ImagePath()
+                image_obj.url = url
+                image_obj.content_object = user_obj
+                image_obj.save()
+                # 更新信息
+                user_obj.username = username
+                user_obj.introduction = introduction
+                user_obj.save()
+                # 提交事务
+                transaction.commit(sid)
+            except Exception as e:
+                print(e)
+                # 报错事务回滚
+                transaction.rollback(sid)
+                return Response.BackendErrorResponse()
+            result = format_user_data(user_obj=user_obj)
+            return Response.Response(data=result)
+    result = Response.BackendErrorResponse()
+    return result
