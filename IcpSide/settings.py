@@ -139,6 +139,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+SIMPLEUI_STATIC_OFFLINE = True
 ### Celery配置
 # celery回去查看INSTALLD_APP下查看每个app下面的目录中的tasks.py文件，找到标记为task的方法，将它们注册为celery task
 # broker的代理地址

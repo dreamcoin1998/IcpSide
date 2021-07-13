@@ -69,6 +69,10 @@ def register(request):
         code_post = request.POST.get("code")
         introduction_post = request.POST.get("introduction")
         introduction = detect_sensitives(introduction_post)
+        if username == username_post:
+            return Response.UsernameErrorResponse
+        if introduction == introduction_post:
+            return Response.IntroductionErrorResponse
         # 密码长度小于8
         if len(password_post) < 8:
             return Response.PasswordLengthResponse()
@@ -140,7 +144,12 @@ def get_phone_verification_code(request):
         verify_obj.phoneOrEmail = phone_post
         verify_obj.save()
         # 手机验证码发送
-        send_code_phone.delay(phone_post, random_code)
+        phone_post = '+86' + phone_post
+        phone_number = []
+        phone_number.append(phone_post)
+        template_param_set = []
+        template_param_set.append(random_code)
+        send_code_phone.delay(phone_number, template_param_set)
         return Response.Response()
     return Response.ClientErrorResponse()
 

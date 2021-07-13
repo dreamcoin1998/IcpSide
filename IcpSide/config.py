@@ -10,9 +10,9 @@ EMAIL_HOST_PASSWORD = 'xfYC4mkT2QLPuBQv'
 
 ### Celery配置
 # redis的地址
-BROKER_URL = 'redis://www.gaoblog.cn:6379/6'
+BROKER_URL = 'redis://134.175.218.240:6379/6'
 #celery结果返回，可用于跟踪结果
-CELERY_RESULT_BACKEND = 'redis://www.gaoblog.cn:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
 class my_database():
     """
@@ -32,3 +32,10 @@ TENCENT_SECRET_KEY = "kEYbWFk00mIfokRzHK6d083j9TXUDl37"
 TENCENT_REGION = "ap-shenzhen-fsi"
 TENCENT_SCHEME = "https"
 TENCENT_BASE_URL = "https://icpside-1258554384.cos.ap-shenzhen-fsi.myqcloud.com/"
+
+### 腾讯云短信配置
+SecretId = 'AKIDpTrzrRknZ3GCOKzNUKtBCwOZS4PTFkyv'
+SecretKey = 'h7JErDI5bqse9MIxLSJtBCySfbGekZ6N'
+SmsSdkAppId = "1400542632"
+SignName = "橡树黑卡"
+TemplateId = "1024622"

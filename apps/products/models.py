@@ -18,6 +18,9 @@ class ProductType(models.Model):
         verbose_name = "产品类型"
         verbose_name_plural = verbose_name
 
+    def __str__(self):
+        return self.type_name
+
 
 class ProductInfo(models.Model):
     """

@@ -123,3 +123,13 @@ class DataBaseErrorResponse(Response):
     msg = "数据库错误"
 
 
+class UsernameErrorResponse(Response):
+
+    code = 4010
+    msg = "用户名错误"
+
+
+class IntroductionErrorResponse(Response):
+
+    code = 4011
+    msg = "您的介绍错误"

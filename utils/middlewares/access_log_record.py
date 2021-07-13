@@ -21,7 +21,22 @@ class AccessLogRecord(MiddlewareMixin):
         获取并记录访问日志
         """
         # 获取Ip
-        ip = request.META.get("REMOTE_ADDR")
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[-1].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        # try:
+        #     request_ip = request.META['REMOTE_ADDR']
+        # except KeyError:
+        #     pass
+
+        # try:
+        #     # 反向代理后存储的IP
+        #     user_ip = request.META['HTTP_X_FORWARDED_FOR']
+        # except KeyError:
+            # 局域网请求
+            user_ip = None
         # 获取url
         url = request.path_info
         # 从cookie中获取user

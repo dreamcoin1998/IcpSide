@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 from auth_user.views import format_user_data
 from utils.jwt_auth.authentication import JSONWebTokenAuthentication
 from utils.detect.detect_sensitives import detect_sensitives
+import random
 
 
 def creat_result(product_obj):
@@ -232,7 +233,18 @@ def recommond(request):
     """
     推荐产品接口-GET
     """
-    pass
+    products_all = ProductInfo.objects.all()
+    products_len = products_all.count()
+    if products_len < 9:
+        data = [creat_result(page_obj) for page_obj in products_all]
+    else:
+        randints = random.sample(range(0, products_len), 10)
+        page_objs = []
+        data = []
+        for i in randints:
+            page_objs.append(products_all[i])
+            data = [creat_result(page_obj) for page_obj in page_objs]
+    return Response.Response(data=data)
 
 
 def get_all_products(request):
@@ -273,7 +285,7 @@ def search_products(request):
         count = int(request.GET.get('count', default='10'))
         page = int(request.GET.get('page', default='1'))
         # 搜索包含product_name字段的产品
-        the_products = ProductInfo.objects.filter(product_name__contains=product_name)
+        the_products = ProductInfo.objects.filter(product_name__icontains=product_name)
         # 对筛选出来的产品the_products进行分页，每页为count个
         paginator = Paginator(the_products, count)
         # 获取总的页数

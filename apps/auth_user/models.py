@@ -24,6 +24,9 @@ class Yonghu(models.Model):  ## 用户表
         verbose_name = "用户"
         verbose_name_plural = verbose_name
 
+    def __str__(self):
+        return self.username + "_id_" + str(self.userid)
+
 
 class VerificationCode(models.Model):  # 验证码表，后期修改不用下划线
     verificationId = models.AutoField(primary_key=True, null=False)
