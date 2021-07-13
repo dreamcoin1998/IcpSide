@@ -135,3 +135,13 @@ class IntroductionErrorResponse(Response):
     msg = "您的介绍错误"
 
 
+class ProductnameErrorResponse(Response):
+
+    code = 4012
+    msg = "产品名错误"
+
+
+class ProductinfoErrorResponse(Response):
+
+    code = 4013
+    msg = "您的介绍错误"

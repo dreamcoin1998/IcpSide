@@ -53,13 +53,19 @@ def create(request):
         product_type_id_post = request.POST.get('product_type_id')
         print(request)
         product_type_filter = ProductType.objects.filter(product_type_id=product_type_id_post)
+        # 产品名错误
+        if product_name == product_name_post:
+            return  Response.ProductnameErrorResponse()
+        # 产品详情错误
+        if product_detail == product_detail_post:
+            return Response.ProductinfoErrorResponse()
         # 产品type存在
         if product_type_filter:
             product_type_obj = product_type_filter.first()
             with transaction.atomic():
                 sid = transaction.savepoint()
-                new_product = ProductInfo(product_name=product_name,
-                                          product_detail=product_detail,
+                new_product = ProductInfo(product_name=product_name_post,
+                                          product_detail=product_detail_post,
                                           price=price_post,
                                           inventory=inventory_post,
                                           product_type=product_type_obj,
@@ -105,14 +111,20 @@ def update(request):
             price = data.get('price')
             inventory = data.get('inventory')
             product_type_id = data.get('product_type_id')
+            # 产品名错误
+            if product_name == product_name_post:
+                return Response.ProductnameErrorResponse()
+            # 产品详情错误
+            if product_detail == product_detail_post:
+                return Response.ProductinfoErrorResponse()
             # 产品存在
             if ProductInfo.objects.filter(id=product_id):
                 # 筛选产品
                 product_obj = ProductInfo.objects.filter(id=product_id).first()
                 # 筛选产品类型
                 product_type_obj = ProductType.objects.filter(product_type_id=product_type_id).first()
-                product_obj.product_name = product_name
-                product_obj.product_detail = product_detail
+                product_obj.product_name = product_name_post
+                product_obj.product_detail = product_detail_post
                 product_obj.price = price
                 product_obj.inventory = inventory
                 # product_type：外键
