@@ -284,7 +284,7 @@ def search_products(request):
         count = int(request.GET.get('count', default='10'))
         page = int(request.GET.get('page', default='1'))
         # 搜索包含product_name字段的产品
-        the_products = ProductInfo.objects.filter(product_name__contains=product_name)
+        the_products = ProductInfo.objects.filter(product_name__icontains=product_name)
         # 对筛选出来的产品the_products进行分页，每页为count个
         paginator = Paginator(the_products, count)
         # 获取总的页数
