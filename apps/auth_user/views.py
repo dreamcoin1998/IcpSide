@@ -70,9 +70,9 @@ def register(request):
         introduction_post = request.POST.get("introduction")
         introduction = detect_sensitives(introduction_post)
         if username != username_post:
-            return Response.UsernameErrorResponse
+            return Response.UsernameErrorResponse()
         if introduction != introduction_post:
-            return Response.IntroductionErrorResponse
+            return Response.IntroductionErrorResponse()
         # 密码长度小于8
         if len(password_post) < 8:
             return Response.PasswordLengthResponse()
