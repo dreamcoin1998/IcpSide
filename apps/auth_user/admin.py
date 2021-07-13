@@ -12,16 +12,18 @@ from .models import Yonghu, VerificationCode, Sensitives
 class YonghuAdmin(admin.ModelAdmin):
 
     list_display = ('userid', 'username', 'email', 'phone', 'introduction', "avatar_url", 'create_time')
+    search_fields = ('userid', "username" "email", "phone")
 
 
 @admin.register(VerificationCode)
 class VerificationCodeAdmin(admin.ModelAdmin):
 
     list_display = ("verificationId", "verification_type", "phoneOrEmail", "code", "update_time")
+    search_fields = ('verificationId', "verification_type" "phoneOrEmail", "code")
 
 
 @admin.register(Sensitives)
 class Sensitives(admin.ModelAdmin):
 
     list_display = ("sensitive_words", "create_time")
-
+    search_fields = ('sensitive_words',)
