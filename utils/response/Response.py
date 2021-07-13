@@ -126,10 +126,22 @@ class DataBaseErrorResponse(Response):
 class UsernameErrorResponse(Response):
 
     code = 4010
-    msg = "用户名错误"
+    msg = "用户名包含敏感词"
 
 
 class IntroductionErrorResponse(Response):
 
     code = 4011
-    msg = "您的介绍错误"
+    msg = "您的介绍包含敏感词"
+
+
+class ProductnameErrorResponse(Response):
+
+    code = 4012
+    msg = "产品名称包含敏感词"
+
+
+class ProductinfoErrorResponse(Response):
+
+    code = 4013
+    msg = "产品介绍包含敏感词"
