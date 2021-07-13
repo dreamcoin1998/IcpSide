@@ -1,0 +1,310 @@
+/usr/local/lib/python3.6/site-packages/celery/platforms.py:801: RuntimeWarning: You're running the worker with superuser privileges: this is
+absolutely not recommended!
+
+Please specify a different user using the --uid option.
+
+User information: uid=0 euid=0 gid=0 egid=0
+
+  uid=uid, euid=euid, gid=gid, egid=egid,
+[2021-07-05 16:14:37,357: INFO/MainProcess] Connected to redis://127.0.0.1:6379/6
+[2021-07-05 16:14:37,366: INFO/MainProcess] mingle: searching for neighbors
+[2021-07-05 16:14:38,392: INFO/MainProcess] mingle: all alone
+[2021-07-05 16:14:38,407: INFO/MainProcess] celery@VM-0-10-centos ready.
+[2021-07-10 00:11:53,979: INFO/MainProcess] Received task: auth_user.tasks.send_code_phone[2a6983d5-b5eb-4550-ac31-ba8ba286fa3c]  
+/usr/local/lib/python3.6/site-packages/celery/platforms.py:801: RuntimeWarning: You're running the worker with superuser privileges: this is
+absolutely not recommended!
+
+Please specify a different user using the --uid option.
+
+User information: uid=0 euid=0 gid=0 egid=0
+
+  uid=uid, euid=euid, gid=gid, egid=egid,
+[2021-07-10 00:11:53,982: WARNING/ForkPoolWorker-1] ========发送短信中
+[2021-07-10 00:11:54,151: WARNING/ForkPoolWorker-1] 发送失败
+[2021-07-10 00:11:54,151: WARNING/ForkPoolWorker-1] {'error': -20, 'msg': 'DEPOSIT_EXHAUSTED'}
+[2021-07-10 00:11:54,154: INFO/ForkPoolWorker-1] Task auth_user.tasks.send_code_phone[2a6983d5-b5eb-4550-ac31-ba8ba286fa3c] succeeded in 0.17230882303556427s: None
+Traceback (most recent call last):
+  File "/usr/local/bin/celery", line 11, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python3.6/site-packages/celery/__main__.py", line 16, in main
+    _main()
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/celery.py", line 322, in main
+    cmd.execute_from_commandline(argv)
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/celery.py", line 499, in execute_from_commandline
+    super(CeleryCommand, self).execute_from_commandline(argv)))
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/base.py", line 305, in execute_from_commandline
+    return self.handle_argv(self.prog_name, argv[1:])
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/celery.py", line 491, in handle_argv
+    return self.execute(command, argv)
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/celery.py", line 419, in execute
+    ).run_from_argv(self.prog_name, argv[1:], command=argv[0])
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/worker.py", line 223, in run_from_argv
+    return self(*args, **options)
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/base.py", line 253, in __call__
+    ret = self.run(*args, **kwargs)
+  File "/usr/local/lib/python3.6/site-packages/celery/bin/worker.py", line 258, in run
+    **kwargs)
+  File "/usr/local/lib/python3.6/site-packages/celery/worker/worker.py", line 99, in __init__
+    self.app.loader.init_worker()
+  File "/usr/local/lib/python3.6/site-packages/celery/loaders/base.py", line 114, in init_worker
+    self.import_default_modules()
+  File "/usr/local/lib/python3.6/site-packages/celery/loaders/base.py", line 108, in import_default_modules
+    raise response
+  File "/usr/local/lib/python3.6/site-packages/celery/utils/dispatch/signal.py", line 288, in send
+    response = receiver(signal=self, sender=sender, **named)
+  File "/usr/local/lib/python3.6/site-packages/celery/fixups/django.py", line 84, in on_import_modules
+    self.worker_fixup.validate_models()
+  File "/usr/local/lib/python3.6/site-packages/celery/fixups/django.py", line 123, in validate_models
+    run_checks()
+  File "/usr/local/lib/python3.6/site-packages/django/core/checks/registry.py", line 76, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+  File "/usr/local/lib/python3.6/site-packages/django/core/checks/urls.py", line 13, in check_url_config
+    return check_resolver(resolver)
+  File "/usr/local/lib/python3.6/site-packages/django/core/checks/urls.py", line 23, in check_resolver
+    return check_method()
+  File "/usr/local/lib/python3.6/site-packages/django/urls/resolvers.py", line 412, in check
+    for pattern in self.url_patterns:
+  File "/usr/local/lib/python3.6/site-packages/django/utils/functional.py", line 48, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/usr/local/lib/python3.6/site-packages/django/urls/resolvers.py", line 598, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/usr/local/lib/python3.6/site-packages/django/utils/functional.py", line 48, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/usr/local/lib/python3.6/site-packages/django/urls/resolvers.py", line 591, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/usr/lib64/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 955, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/root/IcpSide/IcpSide/IcpSide/urls.py", line 25, in <module>
+    path('v1.0/auth/', include('apps.auth_user.urls')),  ##v1.0：版本1；auth：用户认证模块
+  File "/usr/local/lib/python3.6/site-packages/django/urls/conf.py", line 34, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/usr/lib64/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 955, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/root/IcpSide/IcpSide/apps/auth_user/urls.py", line 3, in <module>
+    from auth_user import views
+  File "/root/IcpSide/IcpSide/apps/auth_user/views.py", line 13, in <module>
+    from .tasks import random_str, send_code_email, send_code_phone
+  File "/root/IcpSide/IcpSide/apps/auth_user/tasks.py", line 18, in <module>
+    from IcpSide.config import SecretId, SecretKey, SmsSdkAppId, SignName, TemplateId
+ImportError: cannot import name 'SecretId'
+/usr/local/lib/python3.6/site-packages/celery/platforms.py:801: RuntimeWarning: You're running the worker with superuser privileges: this is
+absolutely not recommended!
+
+Please specify a different user using the --uid option.
+
+User information: uid=0 euid=0 gid=0 egid=0
+
+  uid=uid, euid=euid, gid=gid, egid=egid,
+[2021-07-10 13:23:12,085: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 2.00 seconds... (1/100)
+
+[2021-07-10 13:23:14,094: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 4.00 seconds... (2/100)
+
+[2021-07-10 13:23:18,100: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 6.00 seconds... (3/100)
+
+[2021-07-10 13:23:24,109: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 8.00 seconds... (4/100)
+
+[2021-07-10 13:23:32,119: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 10.00 seconds... (5/100)
+
+[2021-07-10 13:23:42,132: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 12.00 seconds... (6/100)
+
+[2021-07-10 13:23:54,146: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 14.00 seconds... (7/100)
+
+[2021-07-10 13:24:08,164: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 16.00 seconds... (8/100)
+
+[2021-07-10 13:24:24,183: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 18.00 seconds... (9/100)
+
+[2021-07-10 13:24:42,203: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 20.00 seconds... (10/100)
+
+[2021-07-10 13:25:02,225: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 22.00 seconds... (11/100)
+
+[2021-07-10 13:25:24,251: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 24.00 seconds... (12/100)
+
+[2021-07-10 13:25:48,282: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 26.00 seconds... (13/100)
+
+[2021-07-10 13:26:14,317: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 28.00 seconds... (14/100)
+
+[2021-07-10 13:26:42,349: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 30.00 seconds... (15/100)
+
+[2021-07-10 13:27:12,382: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:27:44,418: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:28:16,455: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:28:48,486: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:29:20,522: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:29:52,549: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:30:24,583: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:30:56,619: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:31:28,655: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:32:00,693: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:32:32,725: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:33:04,761: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:33:36,798: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:34:08,834: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:34:40,851: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:35:12,875: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 32.00 seconds... (16/100)
+
+[2021-07-10 13:35:44,895: INFO/MainProcess] Connected to redis://127.0.0.1:6379/6
+[2021-07-10 13:35:44,908: INFO/MainProcess] mingle: searching for neighbors
+[2021-07-10 13:35:45,928: INFO/MainProcess] mingle: all alone
+[2021-07-10 13:35:45,940: INFO/MainProcess] celery@VM-0-10-centos ready.
+[2021-07-10 13:38:08,841: WARNING/MainProcess] consumer: Connection to broker lost. Trying to re-establish the connection...
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/celery/worker/consumer/consumer.py", line 318, in start
+    blueprint.start(self)
+  File "/usr/local/lib/python3.6/site-packages/celery/bootsteps.py", line 119, in start
+    step.start(parent)
+  File "/usr/local/lib/python3.6/site-packages/celery/worker/consumer/consumer.py", line 599, in start
+    c.loop(*c.loop_args())
+  File "/usr/local/lib/python3.6/site-packages/celery/worker/loops.py", line 83, in asynloop
+    next(loop)
+  File "/usr/local/lib/python3.6/site-packages/kombu/asynchronous/hub.py", line 364, in create_loop
+    cb(*cbargs)
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 1083, in on_readable
+    self.cycle.on_readable(fileno)
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 354, in on_readable
+    chan.handlers[type]()
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 688, in _receive
+    ret.append(self._receive_one(c))
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 698, in _receive_one
+    response = c.parse_response()
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 3505, in parse_response
+    response = self._execute(conn, conn.read_response)
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 3479, in _execute
+    return command(*args, **kwargs)
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 739, in read_response
+    response = self._parser.read_response()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 324, in read_response
+    raw = self._buffer.readline()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 256, in readline
+    self._read_from_socket()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 201, in _read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+[2021-07-10 13:38:08,969: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 2.00 seconds... (1/100)
+
+[2021-07-10 13:38:10,977: INFO/MainProcess] Connected to redis://127.0.0.1:6379/6
+[2021-07-10 13:38:10,987: INFO/MainProcess] mingle: searching for neighbors
+[2021-07-10 13:38:11,992: INFO/MainProcess] mingle: all alone
+[2021-07-10 13:38:22,272: WARNING/MainProcess] consumer: Connection to broker lost. Trying to re-establish the connection...
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/celery/worker/consumer/consumer.py", line 318, in start
+    blueprint.start(self)
+  File "/usr/local/lib/python3.6/site-packages/celery/bootsteps.py", line 119, in start
+    step.start(parent)
+  File "/usr/local/lib/python3.6/site-packages/celery/worker/consumer/consumer.py", line 599, in start
+    c.loop(*c.loop_args())
+  File "/usr/local/lib/python3.6/site-packages/celery/worker/loops.py", line 83, in asynloop
+    next(loop)
+  File "/usr/local/lib/python3.6/site-packages/kombu/asynchronous/hub.py", line 364, in create_loop
+    cb(*cbargs)
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 1083, in on_readable
+    self.cycle.on_readable(fileno)
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 354, in on_readable
+    chan.handlers[type]()
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 688, in _receive
+    ret.append(self._receive_one(c))
+  File "/usr/local/lib/python3.6/site-packages/kombu/transport/redis.py", line 698, in _receive_one
+    response = c.parse_response()
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 3505, in parse_response
+    response = self._execute(conn, conn.read_response)
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 3479, in _execute
+    return command(*args, **kwargs)
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 739, in read_response
+    response = self._parser.read_response()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 324, in read_response
+    raw = self._buffer.readline()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 256, in readline
+    self._read_from_socket()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 201, in _read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+[2021-07-10 13:38:22,281: ERROR/MainProcess] consumer: Cannot connect to redis://127.0.0.1:6379/6: Error 111 connecting to 127.0.0.1:6379. Connection refused..
+Trying again in 2.00 seconds... (1/100)
+
+[2021-07-10 13:38:24,286: INFO/MainProcess] Connected to redis://127.0.0.1:6379/6
+[2021-07-10 13:38:24,295: INFO/MainProcess] mingle: searching for neighbors
+[2021-07-10 13:38:25,300: INFO/MainProcess] mingle: all alone
+[2021-07-10 23:43:53,407: INFO/MainProcess] Received task: auth_user.tasks.send_code_phone[929543a9-7473-498b-9756-55075da9a766]  
+/usr/local/lib/python3.6/site-packages/celery/platforms.py:801: RuntimeWarning: You're running the worker with superuser privileges: this is
+absolutely not recommended!
+
+Please specify a different user using the --uid option.
+
+User information: uid=0 euid=0 gid=0 egid=0
+
+  uid=uid, euid=euid, gid=gid, egid=egid,
+[2021-07-10 23:43:53,451: WARNING/ForkPoolWorker-1] {"SendStatusSet": [{"SerialNo": "", "PhoneNumber": "+8618976652082", "Fee": 0, "SessionContext": "", "Code": "InvalidParameterValue.TemplateParameterFormatError", "Message": "Verification code template parameter format error", "IsoCode": ""}], "RequestId": "32410380-2122-4ec5-8b8e-2df2332cb755"}
+[2021-07-10 23:43:53,454: INFO/ForkPoolWorker-1] Task auth_user.tasks.send_code_phone[929543a9-7473-498b-9756-55075da9a766] succeeded in 0.0450273059977917s: None
+[2021-07-10 23:45:01,927: INFO/MainProcess] Received task: auth_user.tasks.send_code_phone[e62f708e-99c6-4dff-aa36-c8653c430830]  
+[2021-07-10 23:45:01,960: WARNING/ForkPoolWorker-1] {"SendStatusSet": [{"SerialNo": "", "PhoneNumber": "+8618976652082", "Fee": 0, "SessionContext": "", "Code": "InvalidParameterValue.TemplateParameterFormatError", "Message": "Verification code template parameter format error", "IsoCode": ""}], "RequestId": "bd294276-1e4e-415d-babe-491a4e5f037b"}
+[2021-07-10 23:45:01,963: INFO/ForkPoolWorker-1] Task auth_user.tasks.send_code_phone[e62f708e-99c6-4dff-aa36-c8653c430830] succeeded in 0.03483025199966505s: None
+[2021-07-11 00:29:13,059: INFO/MainProcess] Received task: auth_user.tasks.send_code_phone[22798f4c-549e-4697-ac07-8e2dcb7f692a]  
+[2021-07-11 00:29:13,091: WARNING/ForkPoolWorker-1] {"SendStatusSet": [{"SerialNo": "", "PhoneNumber": "+8618976652082", "Fee": 0, "SessionContext": "", "Code": "InvalidParameterValue.TemplateParameterFormatError", "Message": "Verification code template parameter format error", "IsoCode": ""}], "RequestId": "23e97589-3bd8-4e32-8ae7-d682c6ecc4e8"}
+[2021-07-11 00:29:13,093: INFO/ForkPoolWorker-1] Task auth_user.tasks.send_code_phone[22798f4c-549e-4697-ac07-8e2dcb7f692a] succeeded in 0.032902760001888964s: None
+[2021-07-11 00:30:34,407: INFO/MainProcess] Received task: auth_user.tasks.send_code_phone[be1091e8-17d7-430c-97d2-d6d762cf146f]  
+[2021-07-11 00:30:34,440: WARNING/ForkPoolWorker-1] {"SendStatusSet": [{"SerialNo": "", "PhoneNumber": "+8615259695263", "Fee": 0, "SessionContext": "", "Code": "InvalidParameterValue.TemplateParameterFormatError", "Message": "Verification code template parameter format error", "IsoCode": ""}], "RequestId": "9ef3365a-0122-4476-b99d-80757bfcea6e"}
+[2021-07-11 00:30:34,443: INFO/ForkPoolWorker-1] Task auth_user.tasks.send_code_phone[be1091e8-17d7-430c-97d2-d6d762cf146f] succeeded in 0.03410201400402002s: None
+[2021-07-11 00:34:19,881: INFO/MainProcess] Received task: auth_user.tasks.send_code_phone[040b2ab7-d5ad-4321-9729-f6d6f69571ba]  
+[2021-07-11 00:34:19,915: WARNING/ForkPoolWorker-1] {"SendStatusSet": [{"SerialNo": "", "PhoneNumber": "+8615259695263", "Fee": 0, "SessionContext": "", "Code": "InvalidParameterValue.TemplateParameterFormatError", "Message": "Verification code template parameter format error", "IsoCode": ""}], "RequestId": "9b5f0aa1-4c04-4c30-813c-ab65dfe38534"}
+[2021-07-11 00:34:19,917: INFO/ForkPoolWorker-1] Task auth_user.tasks.send_code_phone[040b2ab7-d5ad-4321-9729-f6d6f69571ba] succeeded in 0.03463543299585581s: None
+[2021-07-11 00:54:10,897: INFO/MainProcess] Received task: auth_user.tasks.send_code_phone[33f883f3-6fef-4a8f-8094-593060f4d143]  
+[2021-07-11 00:54:11,004: WARNING/ForkPoolWorker-5] {"SendStatusSet": [{"SerialNo": "2433:99655083116259360510019526", "PhoneNumber": "+8615259695263", "Fee": 1, "SessionContext": "", "Code": "Ok", "Message": "send success", "IsoCode": "CN"}], "RequestId": "a0f43286-bf1c-4a0a-8ef7-a659de1e72d1"}
+[2021-07-11 00:54:11,008: INFO/ForkPoolWorker-5] Task auth_user.tasks.send_code_phone[33f883f3-6fef-4a8f-8094-593060f4d143] succeeded in 0.10940062799636507s: None
